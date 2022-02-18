@@ -10,9 +10,10 @@ import (
 )
 
 type YTGO struct {
-	Db_name    string `json:"db_name"`
-	BaseDL     string `json:"base_download_dir"`
-	Defbrowser string `json:"defbrowser"`
+	Db_name     string `json:"db_name"`
+	BaseDL      string `json:"base_download_dir"`
+	Defbrowser  string `json:"defbrowser"`
+	FolderWatch string `json:"folderwatch"`
 }
 
 //check for configurations
@@ -41,10 +42,11 @@ func CkConfig() bool {
 //config file create in JSON
 func createConfigFile(homedir string) bool {
 	base := homedir + "/YTGOVideos/"
-	return writeConfig(ConfigDir+"/ytgo.db", base, "")
+	folderWatch := homedir + "/bin/JDownloader 2.0/folderwatch"
+	return writeConfig(ConfigDir+"/ytgo.db", base, "", folderWatch)
 }
 
-func writeConfig(dbname, basedl, defbrowser string) bool {
+func writeConfig(dbname, basedl, defbrowser, folderwatch string) bool {
 
 	file, err := os.Create(ConfigDir + "/" + ConfigFile)
 	if err != nil {
@@ -55,7 +57,8 @@ func writeConfig(dbname, basedl, defbrowser string) bool {
 	fmt.Fprintln(file, "{")
 	fmt.Fprintln(file, "\t\"db_name\":\""+dbname+"\",")
 	fmt.Fprintln(file, "\t\"base_download_dir\":\""+basedl+"\",")
-	fmt.Fprintln(file, "\t\"defbrowser\":\""+defbrowser+"\"")
+	fmt.Fprintln(file, "\t\"defbrowser\":\""+defbrowser+"\",")
+	fmt.Fprintln(file, "\t\"folderwatch\":\""+folderwatch+"\"")
 	fmt.Fprintln(file, "}")
 
 	return true
