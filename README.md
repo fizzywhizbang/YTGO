@@ -39,5 +39,5 @@ Inspiration, code snippets, etc.
 * [therecipe/qt] (https://github.com/therecipe/qt)
 
 
-<!-- MARKDOWN LINKS & IMAGES -->
-![GitHub](https://img.shields.io/badge/license-GPL-blue)
+
+[license-url]: https://img.shields.io/badge/license-GPL-blue
