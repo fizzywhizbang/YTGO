@@ -21,7 +21,7 @@ since I have a server at home I decided to make it more portable and have it use
 * Go 1.17, QT5.3
 * therecipe/qt https://github.com/therecipe/qt (follow instructions)
 * and of course go mod tidy to get dependencies 
-* JDownloader2 (Why reinvent the wheel??)
+* JDownloader2 (Why reinvent the wheel??) This will write .crawljobs for JD so add the folderwatch location to the config file
 
 
 ### Installing
@@ -31,6 +31,9 @@ since I have a server at home I decided to make it more portable and have it use
   then
 * therecipe/qt https://github.com/therecipe/qt (follow instructions)
 * typically qtdeploy desktop
+  
+### Instructions for use
+* start the program :)
 
 ## License
 
