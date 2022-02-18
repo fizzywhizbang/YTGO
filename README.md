@@ -1,2 +1,5 @@
-# YTGO
- This is a program to monitor youtube channels
+<div id="top"></div>
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
