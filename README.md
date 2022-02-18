@@ -40,4 +40,4 @@ Inspiration, code snippets, etc.
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
-![GitHub](https://img.shields.io/github/license/fizzywhizbang/YTGO)
+![GitHub](https://img.shields.io/badge/license-GPL-blue)
