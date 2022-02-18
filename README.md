@@ -1,4 +1,4 @@
-[![GPL-3.0][license-shield]][license-url]
+![GitHub](https://img.shields.io/badge/license-GPL-blue)
 
 # YTGO
 
@@ -38,6 +38,3 @@ Inspiration, code snippets, etc.
 * [ytcc](https://github.com/woefe/ytcc)
 * [therecipe/qt] (https://github.com/therecipe/qt)
 
-
-
-[license-url]: https://img.shields.io/badge/license-GPL-blue
