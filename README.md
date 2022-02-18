@@ -11,6 +11,9 @@ is to monitor your favorite channels, keep track of downloaded videos, and searc
 Although that program worked well I wanted to develop something similar with added functionality in GO using MySQL. While that version works well for me
 since I have a server at home I decided to make it more portable and have it use SQLite and perform all functions on one machine as most of the world operates.
 
+### Note
+* the Go Monitor will still be a separate program so this can be run automatically or manually and server/client
+
 ## Getting Started
 
 ### Dependencies
