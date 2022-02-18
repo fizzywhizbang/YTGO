@@ -13,43 +13,18 @@ since I have a server at home I decided to make it more portable and have it use
 
 ### Dependencies
 
-* Go 1.17, [therecipe/QT] (https://github.com/therecipe/qt)
-* ex. Windows 10
+* Go 1.17, QT5.3
+* therecipe/qt https://github.com/therecipe/qt (follow instructions)
+* and of course go mod tidy to get dependencies 
+
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
-
-### Executing program
-
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-## Help
-
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
-
-## Authors
-
-Contributors names and contact info
-
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
-
-## Version History
-
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
-    * Initial Release
+* go mod tidy
+* go mod vendor
+  then
+* therecipe/qt https://github.com/therecipe/qt (follow instructions)
+* typically qtdeploy desktop
 
 ## License
 
@@ -58,8 +33,5 @@ This project is licensed under the [NAME HERE] License - see the LICENSE.md file
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+* [ytcc](https://github.com/woefe/ytcc)
+* [therecipe/qt] (https://github.com/therecipe/qt)
