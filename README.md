@@ -1,3 +1,5 @@
+[![GPL-3.0][license-shield]][license-url]
+
 # YTGO
 
 This is a Youtube Channel monitor written in GO with a GUI writtin in QT 
@@ -28,10 +30,14 @@ since I have a server at home I decided to make it more portable and have it use
 
 ## License
 
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
+This project is licensed under the GPL-3.0 License - see the LICENSE file for details
 
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
 * [ytcc](https://github.com/woefe/ytcc)
 * [therecipe/qt] (https://github.com/therecipe/qt)
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+![GitHub](https://img.shields.io/github/license/fizzywhizbang/YTGO)
