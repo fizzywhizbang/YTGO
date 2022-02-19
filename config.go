@@ -16,6 +16,14 @@ type YTGO struct {
 	FolderWatch string `json:"folderwatch"`
 }
 
+const (
+	ytVideoInfoURL = "https://www.youtube.com/get_video_info?video_id="
+	ytFeedURL      = "https://www.youtube.com/feeds/videos.xml?channel_id="
+	ytWatchPrefix  = "https://www.youtube.com/watch?v="
+	ytChanPrefix   = "https://www.youtube.com/channel/"
+	ytSearchPrefix = "https://www.youtube.com/results?search_query="
+)
+
 //check for configurations
 func CkConfig() bool {
 	homedir, err := os.UserHomeDir()

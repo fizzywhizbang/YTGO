@@ -4,12 +4,12 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"github.com/fizzywhizbang/YTGO/functions"
 	_ "github.com/mattn/go-sqlite3"
 )
-
-var DB *sql.DB
 
 type Status struct {
 	ID   int
@@ -23,7 +23,7 @@ type Video struct {
 	Description  string
 	Publisher    string
 	Publish_date int
-	Watched      int
+	Downloaded   int
 }
 
 type Channel struct {
@@ -44,7 +44,7 @@ func DBCheck(dbname string) bool {
 		//create database
 		os.Create(dbname)
 		db := DbConnect(dbname)
-		defer db.Close()
+
 		channelSQL := "CREATE TABLE `channel` ("
 		channelSQL += "`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
 		channelSQL += "`dldir` VARCHAR(255),"
@@ -81,14 +81,14 @@ func DBCheck(dbname string) bool {
 		videoSQL += "`description` TEXT,"
 		videoSQL += "`publisher` VARCHAR(255),"
 		videoSQL += "`publish_date` INTEGER,"
-		videoSQL += "`watched` INTEGER,"
+		videoSQL += "`downloaded` INTEGER,"
 		videoSQL += "CONSTRAINT fk_channel FOREIGN KEY (publisher) REFERENCES channel(yt_channelid) ON DELETE CASCADE ON UPDATE CASCADE)"
 		_, err = db.Exec(videoSQL)
 
 		if err != nil {
 			log.Println(err)
 		}
-
+		defer db.Close()
 		return true
 	}
 	return false
@@ -97,8 +97,107 @@ func DBCheck(dbname string) bool {
 func DbConnect(dbname string) *sql.DB {
 	connectString := dbname + "?_cache_size=-10000&_journal_mode=WAL"
 	db, err := sql.Open("sqlite3", connectString)
-	if err != nil {
-		log.Println("Unable to connect to the database (Line 29)")
-	}
+	functions.CheckErr(err, connectString)
+
 	return db
 }
+
+//status related queries
+func GetAllStatus(dbname string) *sql.Rows {
+
+	DB := DbConnect(dbname)
+	sql := "SELECT * from status order by status_name"
+	results, err := DB.Query(sql)
+
+	functions.CheckErr(err, "Unable to get all statuses (GetAllStatus func)")
+
+	defer DB.Close()
+	return results
+}
+func GetStatus(dbname, status string) string {
+	DB := DbConnect(dbname)
+	results := DB.QueryRow("SELECT * FROM status WHERE ID=?", status)
+	var statusModel Status
+	err := results.Scan(&statusModel.ID, &statusModel.Name)
+	functions.CheckErr(err, "Something went wrong getting status (GetStatus func)")
+
+	defer DB.Close()
+	return statusModel.Name
+}
+func GetStatusName(dbname, status string) string {
+	DB := DbConnect(dbname)
+	results := DB.QueryRow("SELECT * FROM status WHERE status_name=?", status)
+	var statusModel Status
+	err := results.Scan(&statusModel.ID, &statusModel.Name)
+	functions.CheckErr(err, "Unable to get status by name (GetStatusName func)")
+
+	defer DB.Close()
+	return strconv.Itoa(statusModel.ID)
+}
+func CheckCount(dbname, status string) (count int) {
+
+	DB := DbConnect(dbname)
+	sql := "SELECT count(*) from channel where archive=" + status
+
+	if status == "" {
+		//count all
+		sql = "SELECT count(*) from channel"
+	}
+
+	result := DB.QueryRow(sql)
+	err := result.Scan(&count)
+	functions.CheckErr(err, "Unable to get count from channels")
+
+	defer DB.Close()
+	return count
+
+}
+
+///// end status related
+
+//video related queries
+func GetLatestVideos(dbname string) *sql.Rows {
+	DB := DbConnect(dbname)
+	unixTime := time.Now().Unix()
+	begin := unixTime - 86400
+	bs := strconv.Itoa(int(begin))
+	et := strconv.Itoa(int(unixTime))
+	GetLatestVideos := "select * from video where publish_date between " + bs + " and " + et + " order by publish_date desc"
+
+	results, err := DB.Query(GetLatestVideos)
+	functions.CheckErr(err, "error getting latest videos")
+
+	defer DB.Close()
+	return results
+
+}
+
+///// end video related queries
+
+//channel related queries
+func GetLastCheck(dbname string) int {
+	DB := DbConnect(dbname)
+	results := DB.QueryRow("select max(lastcheck) from channel")
+	var channel Channel
+	err := results.Scan(&channel.Lastcheck)
+	if err != nil {
+		return 0
+	}
+	defer DB.Close()
+	return channel.Lastcheck
+}
+
+func GetChanInfo(dbname, ytid string) Channel {
+	DB := DbConnect(dbname)
+	results := DB.QueryRow("SELECT * FROM channel WHERE yt_channelid=?", ytid)
+
+	var channel Channel
+	err := results.Scan(&channel.ID, &channel.Displayname, &channel.Dldir, &channel.Yt_channelid, &channel.Lastpub, &channel.Lastcheck, &channel.Archive, &channel.Notes, &channel.Date_added, &channel.Last_feed_count)
+	if err != nil {
+		return channel
+	}
+	defer DB.Close()
+	return channel
+}
+
+//end channel related queries
