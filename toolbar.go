@@ -11,14 +11,14 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets.QApplication) *widgets.QToolBar {
+func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 
 	statusSelector := widgets.NewQComboBox(nil)
 	statusitems := []string{"Main"}
 	statuses := database.GetAllStatus(config.Db_name)
 	//create vertical layout
 	for statuses.Next() {
-		var status database.Status
+		var status database.Category
 		err := statuses.Scan(&status.ID, &status.Name)
 		functions.CheckErr(err, "Unable to get status from db (toolbar.go line 23)")
 
@@ -38,16 +38,16 @@ func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets
 			//reset section/header clicked
 			sectionClicked = 0
 			GlobalStatus = ""
-			createHomeWindow(w, app)
+			createHomeWindow()
 		} else {
 			GlobalStatus := database.GetStatusName(config.Db_name, text)
 			fmt.Println(GlobalStatus)
 			if GlobalSearchType != "" && globalSearchTags != "" {
 				//continue with current filter
-				// showSubsSearch(w, app, globalSearchTags, GlobalSearchType, GlobalStatus)
+				showSubsSearch(globalSearchTags, GlobalSearchType, GlobalStatus)
 			} else {
 				GlobalSearchType = "" //resetting because
-				// showSubs(GlobalStatus, w, app)
+				showSubs(GlobalStatus)
 			}
 
 		}
@@ -64,7 +64,6 @@ func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets
 		selector.SetCurrentText(GlobalSearchType)
 	}
 
-	// searchLabel2 := widgets.NewQLabel2("Search tags: ", nil, 0)
 	toolbar.AddWidget(selector)
 	searchTags := widgets.NewQLineEdit(nil)
 	searchTags.SetMaximumWidth(400)
@@ -100,12 +99,12 @@ func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets
 						if channel.Displayname == "" {
 							action := widgets.QMessageBox_Warning(nil, "Search not found", "There is no channel with ID"+searchTags.Text()+" found\nWould you like to add it?", widgets.QMessageBox__Ok, widgets.QMessageBox__Cancel)
 							if action == widgets.QMessageBox__Ok {
-								// addChannel(searchTags.Text())
+								addChannel(searchTags.Text())
 							}
 						} else {
 							action := widgets.QMessageBox_Question(nil, "Channel Exists", "This channel exists do you want to view the settings?", widgets.QMessageBox__Open|widgets.QMessageBox__Cancel, 0)
 							if action == widgets.QMessageBox__Open {
-								// ChannelSettings(searchTags.Text())
+								ChannelSettings(searchTags.Text())
 							}
 						}
 					} else {
@@ -114,7 +113,7 @@ func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets
 						//unset status so we can use the shortcut keys in this view
 						GlobalSearchType = selector.CurrentText()
 
-						// showSubsSearch(w, app, searchTags.Text(), selector.CurrentText(), GlobalStatus)
+						showSubsSearch(searchTags.Text(), selector.CurrentText(), GlobalStatus)
 					}
 
 				}
@@ -126,7 +125,7 @@ func toolbarInit(toolbar *widgets.QToolBar, w *widgets.QMainWindow, app *widgets
 	tagButton := widgets.NewQPushButton2("tags", nil)
 	tagButton.ConnectClicked(func(checked bool) {
 		//open tag window for searching
-		// showTagSearch(w, app)
+		showTagSearch()
 	})
 	toolbar.AddWidget(tagButton)
 

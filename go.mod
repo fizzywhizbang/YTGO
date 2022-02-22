@@ -3,8 +3,15 @@ module github.com/fizzywhizbang/YTGO
 go 1.17
 
 require (
+	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/aquilax/truncate v1.0.0
+	github.com/dyatlov/go-opengraph v0.0.0-20210112100619-dae8665a5b09
 	github.com/mattn/go-sqlite3 v1.14.11
 	github.com/therecipe/qt v0.0.0-20200904063919-c0c124a5770d
 )
 
-require github.com/gopherjs/gopherjs v0.0.0-20190411002643-bd77b112433e // indirect
+require (
+	github.com/andybalholm/cascadia v1.3.1 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20190411002643-bd77b112433e // indirect
+	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8 // indirect
+)

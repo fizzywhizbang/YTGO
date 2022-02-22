@@ -24,14 +24,14 @@ func monitorWindow() *widgets.QTextBrowser {
 	statuses := database.GetAllStatus(config.Db_name)
 	statusCounts := "Status Counts: "
 	for statuses.Next() {
-		var status database.Status
+		var status database.Category
 		err := statuses.Scan(&status.ID, &status.Name)
 		functions.CheckErr(err, "Could not get statuses for monitor area")
 		statusCounts += status.Name + " (" + strconv.Itoa(database.CheckCount(config.Db_name, strconv.Itoa(status.ID))) + ") "
 	}
 
 	message += statusCounts
-	message += "#############################################################</div><br>"
+	message += "<br>#############################################################</div><br>"
 
 	for results.Next() {
 		//make this a label for now
@@ -39,7 +39,7 @@ func monitorWindow() *widgets.QTextBrowser {
 		functions.CheckErr(err, "Unable to get latest videos (monitor window)")
 		channelInfo := database.GetChanInfo(config.Db_name, video.Publisher)
 		message += "<br><span class=\"font-weight:bold; font-size:14px; text-decoration: underline; color:red\">Publisher:</span> <span class=\"font-style:italic; text-decoration:underline; color:green\">" + channelInfo.Displayname + "</span><br>"
-		message += "<a href='" + ytWatchPrefix + video.YT_videoid + "'>" + video.Title + "</a> -- published: <span class=\"font-style:italic; text-decoration:underline; color:green\">" + functions.DateConvert(video.Publish_date) + "</span><hr>"
+		message += "<a href='" + YtWatchPrefix + video.YT_videoid + "'>" + video.Title + "</a> -- published: <span class=\"font-style:italic; text-decoration:underline; color:green\">" + functions.DateConvert(video.Publish_date) + "</span><hr>"
 	}
 
 	textarea.SetHtml(message)

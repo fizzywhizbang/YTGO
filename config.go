@@ -17,11 +17,11 @@ type YTGO struct {
 }
 
 const (
-	ytVideoInfoURL = "https://www.youtube.com/get_video_info?video_id="
-	ytFeedURL      = "https://www.youtube.com/feeds/videos.xml?channel_id="
-	ytWatchPrefix  = "https://www.youtube.com/watch?v="
-	ytChanPrefix   = "https://www.youtube.com/channel/"
-	ytSearchPrefix = "https://www.youtube.com/results?search_query="
+	YtVideoInfoURL = "https://www.youtube.com/get_video_info?video_id="
+	YtFeedURL      = "https://www.youtube.com/feeds/videos.xml?channel_id="
+	YtWatchPrefix  = "https://www.youtube.com/watch?v="
+	YtChanPrefix   = "https://www.youtube.com/channel/"
+	YtSearchPrefix = "https://www.youtube.com/results?search_query="
 )
 
 //check for configurations

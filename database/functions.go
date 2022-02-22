@@ -1,4 +1,4 @@
-package functions
+package database
 
 import (
 	"log"
@@ -61,12 +61,4 @@ func DateConvertToUnix(d string) string {
 	epoch := thetime.Unix()
 	return strconv.Itoa(int(epoch))
 
-}
-func ConvertYMDtoUnix(ymd string) string {
-	layout := "2006-01-02"
-	t, err := time.Parse(layout, ymd)
-	if err != nil {
-		panic(err.Error())
-	}
-	return strconv.Itoa(int(t.Unix()))
 }
