@@ -21,7 +21,6 @@ var orderby = "displayname"
 var SelectedChannel = ""
 var FormSelected = "main"
 var GlobalChannelID = ""
-var ytcmConfigFile = ""
 var globalSearchTags = ""
 var indexSelected = 0
 var sectionClicked = 0
