@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 
@@ -46,7 +45,6 @@ func main() {
 	Window.SetWindowTitle("YTGO (Youtube Channel Monitor)")
 	Window.SetMinimumSize2(900, 600)
 	statuses := database.GetAllStatus(config.Db_name)
-	fmt.Println(statuses)
 	menu := Window.MenuBar()
 
 	selectMenu := menu.AddMenu2("&Select View")

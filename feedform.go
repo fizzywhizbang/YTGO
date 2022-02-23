@@ -47,7 +47,7 @@ func feedWindow(chanid string) {
 	// xmlFiles content into 'users' which we defined above
 	xml.Unmarshal(byteValue, &feed)
 	treeWidget := widgets.NewQTreeWidget(nil)
-	treeWidget.SetColumnCount(6)
+	treeWidget.SetColumnCount(7)
 	treeWidget.SetObjectName("treewidget")
 	treeWidget.Header().SetStretchLastSection(false)
 	treeWidget.Header().SetSectionsClickable(true)
@@ -55,7 +55,7 @@ func feedWindow(chanid string) {
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
 	treeWidget.SetStyleSheet(tableColors)
 	treeWidget.Header()
-	treeWidget.SetHeaderLabels([]string{"VidoeID", "Title", "Date", "Status", "View", "Mark"})
+	treeWidget.SetHeaderLabels([]string{"VidoeID", "Title", "Date", "Status", "View", "Mark", "Download"})
 
 	if len(feed.Entries) >= 1 {
 		//db fields yt_videoid, title, description, publisher, publish_date(unix), watched(if added to download then 1 else 0)
@@ -66,7 +66,7 @@ func feedWindow(chanid string) {
 			if database.GetVideoExist(config.Db_name, feed.Entries[i].VideoId) == 1 {
 				videxists = "True"
 			}
-			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{feed.Entries[i].VideoId, truncate.Truncate(feed.Entries[i].Title, 70, "...", truncate.PositionEnd), date.Format("2006-01-02"), videxists, "View", "Mark"}, 0)
+			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{feed.Entries[i].VideoId, truncate.Truncate(feed.Entries[i].Title, 70, "...", truncate.PositionEnd), date.Format("2006-01-02"), videxists, "View", "Mark", "Download"}, 0)
 			treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(feed.Entries[i].VideoId))
 
 			treeWidget.AddTopLevelItem(treewidgetItem)
@@ -87,7 +87,7 @@ func feedWindow(chanid string) {
 		//get item
 		//one item will download, one will view in browser, one will search for similar subjects
 		//https://www.youtube.com/watch?v=
-		if item == 0 {
+		if item == 0 || item == 6 {
 			// fmt.Println(data)
 
 			functions.MkCrawljob(config.Db_name, config.FolderWatch, chanid, treeWidget.CurrentItem().Text(1), data, treeWidget.CurrentItem().Text(2), 1)

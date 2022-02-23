@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fizzywhizbang/YTGO/database"
@@ -22,16 +21,11 @@ func showSubs(status string) {
 	toolbar := toolbarInit(widgets.NewQToolBar2(nil))
 
 	toolbar.AddSeparator()
-	// add quit action to menu bar
-	// quit := toolbar.AddAction("Quit")
-	// quit.ConnectTriggered(func(checked bool) { app.Quit() })
 	//set menubar
 	verticalLayout.SetMenuBar(toolbar)
 
 	//this is where it differs
-	channels := database.GetChannels(config.Db_name, status, orderby, "asc")
-
-	// channelCount := checkCount(status)
+	channels := database.GetChannels(config.Db_name, status, orderby)
 
 	treeWidget := widgets.NewQTreeWidget(nil)
 	treeWidget.SetColumnCount(6)
@@ -56,17 +50,11 @@ func showSubs(status string) {
 		for channels.Next() {
 			var channel database.Channel
 			err := channels.Scan(&channel.ID, &channel.Displayname, &channel.Dldir, &channel.Yt_channelid, &channel.Lastpub, &channel.Lastcheck, &channel.Archive, &channel.Notes, &channel.Date_added, &channel.Last_feed_count)
-			if err != nil {
-				fmt.Println("something went wrong with the channel scan")
-			}
-
+			functions.CheckErr(err, "Unable to retrieve the channels (showsubs.go)")
 			//filter by will be added
 			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{channel.Displayname, functions.DateConvertTrim(channel.Lastcheck, 10), functions.DateConvertTrim(database.GetLastDownload(config.Db_name, channel.Yt_channelid), 10), functions.DateConvertTrim(channel.Date_added, 10), database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)), strconv.Itoa(channel.Last_feed_count)}, channel.ID)
 			treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(channel.Yt_channelid))
 			treeWidget.AddTopLevelItem(treewidgetItem)
-
-			// rootNode := treeWidget.InvisibleRootItem()
-			// rootNode.AddChild(treewidgetItem)
 
 		}
 
@@ -74,7 +62,7 @@ func showSubs(status string) {
 			sectionClicked = logicalIndex
 
 		})
-		// treeWidget.ConnectKeyReleaseEvent(keyPressEvent)
+
 		treeWidget.ConnectKeyReleaseEvent(func(event *gui.QKeyEvent) {
 			//get selected sub and then pass to the master key event in libs
 			index := treeWidget.IndexFromItem(treeWidget.CurrentItem(), 0)
@@ -84,7 +72,6 @@ func showSubs(status string) {
 			chaninfo := database.GetChanInfo(config.Db_name, data)
 			Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
 
-			//keyPressEvent(event, w)
 		})
 
 		treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
@@ -98,8 +85,7 @@ func showSubs(status string) {
 			GlobalChannelID = data
 			chaninfo := database.GetChanInfo(config.Db_name, data)
 			Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
-			// widgets.QMessageBox_Information(nil, "OK", data, widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-			fmt.Println(data)
+
 		})
 
 		treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
@@ -109,12 +95,12 @@ func showSubs(status string) {
 			GlobalChannelID = data
 			//double click means open the settings for this channel
 			if GlobalChannelID != "" {
-				fmt.Println("open channel settings")
-				//ChannelSettings(GlobalChannelID)
+
+				ChannelSettings(GlobalChannelID)
 			}
 			chaninfo := database.GetChanInfo(config.Db_name, data)
 			Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
-			// widgets.QMessageBox_Information(nil, "OK", "Open Subscription Settings for "+data, widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+
 		})
 	}
 	treeWidget.ResizeColumnToContents(0)
@@ -135,7 +121,6 @@ func showSubs(status string) {
 }
 
 func contextMenu(chanid string, event *gui.QContextMenuEvent) {
-	fmt.Println(chanid)
 
 	menu := widgets.NewQMenu(Window)
 
@@ -144,7 +129,8 @@ func contextMenu(chanid string, event *gui.QContextMenuEvent) {
 	})
 
 	menu.AddAction("Download New").ConnectTriggered(func(checked bool) {
-		fmt.Println("dl new")
+		functions.UpdateChan(config.Db_name, config.FolderWatch, chanid, true, true)
+
 	})
 
 	menu.AddAction("Open URL").ConnectTriggered(func(checked bool) {
@@ -163,8 +149,7 @@ func contextMenu(chanid string, event *gui.QContextMenuEvent) {
 			if action == widgets.QMessageBox__Yes {
 				database.DeleteChannel(config.Db_name, GlobalChannelID)
 				if GlobalStatus == "" && globalSearchTags != "" {
-					fmt.Println("show show subs search")
-					//showSubsSearch(w, app, globalSearchTags, GlobalSearchType, GlobalStatus)
+					showSubsSearch(globalSearchTags, GlobalSearchType, GlobalStatus)
 				} else {
 					showSubs(GlobalStatus)
 				}
@@ -188,17 +173,16 @@ func contextMenu(chanid string, event *gui.QContextMenuEvent) {
 			statusCount := database.CheckCount(config.Db_name, strconv.Itoa(status.ID))
 			//refresh view if count for view < 75 and this is because of a sloooooooo refresh if you have a lot of subs
 			if statusCount < 75 {
-				// if GlobalStatus == "" && globalSearchTags != "" {
-				// 	showSubsSearch(w, app, globalSearchTags, GlobalSearchType)
-				// } else {
-				// 	showSubs(GlobalStatus, w, app)
-				// }
+				if GlobalStatus == "" && globalSearchTags != "" {
+					showSubsSearch(globalSearchTags, GlobalSearchType, GlobalStatus)
+				} else {
+					showSubs(GlobalStatus)
+				}
 			} else {
 				action := widgets.QMessageBox_Question(nil, "Notice", "Due to the number of subs in this status refresh will not be automatic\n Do you want to refresh?", widgets.QMessageBox__Yes|widgets.QMessageBox__No, 0)
 				if action == widgets.QMessageBox__Yes {
 					if GlobalStatus == "" && globalSearchTags != "" {
-						fmt.Println("show subs search")
-						// showSubsSearch(w, app, globalSearchTags, GlobalSearchType, GlobalStatus)
+						showSubsSearch(globalSearchTags, GlobalSearchType, GlobalStatus)
 					} else {
 						showSubs(GlobalStatus)
 					}

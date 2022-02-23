@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fizzywhizbang/YTGO/database"
@@ -41,7 +40,7 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 			createHomeWindow()
 		} else {
 			GlobalStatus := database.GetStatusName(config.Db_name, text)
-			fmt.Println(GlobalStatus)
+
 			if GlobalSearchType != "" && globalSearchTags != "" {
 				//continue with current filter
 				showSubsSearch(globalSearchTags, GlobalSearchType, GlobalStatus)

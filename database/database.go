@@ -59,6 +59,7 @@ func DBCheck(dbname string) bool {
 
 		channelSQL := "CREATE TABLE `channel` ("
 		channelSQL += "`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
+		channelSQL += "`displayname` VARCHAR(255),"
 		channelSQL += "`dldir` VARCHAR(255),"
 		channelSQL += "`yt_channelid` VARCHAR(255),"
 		channelSQL += "`lastpub` INTEGER,"
@@ -267,11 +268,11 @@ func GetVideoExist(dbname, videoid string) (count int) {
 	return count
 }
 
-func InsertVideo(dbname, videoid, title, description, publisher, publish_date, watched string) {
+func InsertVideo(dbname, videoid, title, description, publisher, publish_date, downloaded string) {
 	titleReplaceQuotes := strings.ReplaceAll(title, `"`, `\"`)
 	descriptionReplaceQuotes := strings.ReplaceAll(description, `"`, `\"`)
-	query := "insert into video (yt_videoid, title, description, publisher, publish_date, watched) values "
-	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + watched + "\")"
+	query := "insert into video (yt_videoid, title, description, publisher, publish_date, downloaded) values "
+	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + downloaded + "\")"
 
 	DB := DbConnect(dbname)
 
@@ -339,10 +340,10 @@ func GetChanInfo(dbname, ytid string) Channel {
 	return channel
 }
 
-func GetChannels(dbname, arch, ob, sb string) *sql.Rows {
+func GetChannels(dbname, arch, ob string) *sql.Rows {
 	DB := DbConnect(dbname)
-
-	results, _ := DB.Query("SELECT * FROM channel where archive=? ORDER BY ? ?", ob, sb)
+	results, err := DB.Query("SELECT * FROM channel where archive=? ORDER BY ? asc", arch, ob)
+	CheckErr(err, "Unable to get channels (database.go)")
 	defer DB.Close()
 	return results
 }
@@ -600,7 +601,6 @@ func InsertChannel(dbname string, channel Channel) bool {
 	query := "INSERT into channel (displayname, dldir, yt_channelid, lastcheck, archive, notes, date_added) values "
 	query += "(\"" + channel.Displayname + "\",\"" + channel.Dldir + "\",\"" + channel.Yt_channelid + "\",\"" + strconv.Itoa(channel.Lastcheck) + "\","
 	query += "\"" + strconv.Itoa(channel.Archive) + "\",\"" + channel.Notes + "\",\"" + strconv.Itoa(channel.Date_added) + "\")"
-
 	DB := DbConnect(dbname)
 	_, err := DB.Exec(query)
 
@@ -652,7 +652,6 @@ func SearchUpdate(dbname, id, name, link string) bool {
 func SearchInsert(dbname, name, link string) bool {
 	DB := DbConnect(dbname)
 	query := "INSERT into searches (name, link) values (\"" + name + "\", \"" + link + "\")"
-	// fmt.Println(query)
 	_, err := DB.Exec(query)
 	if err != nil {
 		return false
