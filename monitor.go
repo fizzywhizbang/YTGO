@@ -22,7 +22,7 @@ func monitorWindow() *widgets.QTextBrowser {
 	message += "#############################################################</div>"
 	message += "<div class=\"font-weight: bold; font-size:16px; color:green\">#############################################################<br>"
 	statuses := database.GetAllStatus(config.Db_name)
-	statusCounts := "Status Counts: "
+	statusCounts := "Category Counts: "
 	for statuses.Next() {
 		var status database.Category
 		err := statuses.Scan(&status.ID, &status.Name)
