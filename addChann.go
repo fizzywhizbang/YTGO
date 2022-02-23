@@ -37,6 +37,7 @@ func addChannel(chanid string) {
 	input := widgets.NewQLineEdit(nil)
 	input.SetPlaceholderText("UCxxxx")
 	input.SetText(chanid)
+	input.SetToolTip("Press enter to lookup channel information")
 	layout.AddRow3("Channel URL: ", input)
 
 	input2 := widgets.NewQLineEdit(nil)
@@ -74,6 +75,7 @@ func addChannel(chanid string) {
 	//tags
 	tags := database.GetAllTags(config.Db_name, "tag")
 	tagSelector := widgets.NewQComboBox(nil)
+	tagSelector.SetToolTip("Under System->Edit Tags you can add more tags")
 	tagItems := []string{}
 	tagItems = append(tagItems, "Select to add to Notes/Tags box")
 	for tags.Next() {
@@ -189,6 +191,10 @@ func addChannel(chanid string) {
 	})
 
 	layout.InsertRow6(7, optionGroup)
+
+	instructionsLabel := widgets.NewQLabel2("After inserting the Channel ID press enter and I'll fetch the channel details", nil, 0)
+	instructionsLabel.SetFont(gui.NewQFont2("Times", 12, 1, true))
+	layout.AddRow5(instructionsLabel)
 
 	// Set main widget as the central widget of the window
 	mainWidget.SetLayout(layout)

@@ -21,7 +21,8 @@ func downloadVideoForm(channame string, dldir string, chanid string) *widgets.QW
 	//videourl https://www.youtube.com/watch?v=
 	yturl := widgets.NewQLineEdit(nil)
 	yturl.SetPlaceholderText("Only enter video id")
-	layout.AddRow3("Youtube URL: ", yturl)
+	yturl.SetToolTip("Press enter after you insert the video ID to fetch the details")
+	layout.AddRow3("Vidoe ID: ", yturl)
 
 	//channel name
 	chanName := widgets.NewQLineEdit(nil)
@@ -80,6 +81,10 @@ func downloadVideoForm(channame string, dldir string, chanid string) *widgets.QW
 
 		msgbox.SetText(videoTitleText + " added to queue")
 	})
+
+	instructionsLabel := widgets.NewQLabel2("After inserting the Video ID press enter and I'll fetch the video details", nil, 0)
+	instructionsLabel.SetFont(gui.NewQFont2("Times", 12, 1, true))
+	layout.AddRow5(instructionsLabel)
 	layoutWidget.SetLayout(layout)
 
 	return layoutWidget
