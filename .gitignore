@@ -1,3 +1,5 @@
 .gitignore
 qtbox
 vendor
+darwin
+deploy
