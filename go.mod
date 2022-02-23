@@ -13,5 +13,6 @@ require (
 require (
 	github.com/andybalholm/cascadia v1.3.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20190411002643-bd77b112433e // indirect
+	github.com/therecipe/qt/internal/binding/files/docs/5.13.0 v0.0.0-20200904063919-c0c124a5770d // indirect
 	golang.org/x/net v0.0.0-20210916014120-12bc252f5db8 // indirect
 )

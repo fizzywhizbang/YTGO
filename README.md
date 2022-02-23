@@ -30,7 +30,7 @@ since I have a server at home I decided to make it more portable and have it use
 * go mod vendor
   then
 * therecipe/qt https://github.com/therecipe/qt (follow instructions)
-* typically qtdeploy desktop
+* typically "qtdeploy build"
   
 ### Instructions for use
 * start the program :)
