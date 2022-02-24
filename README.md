@@ -22,7 +22,7 @@ since I have a server at home I decided to make it more portable and have it use
 * therecipe/qt https://github.com/therecipe/qt (follow instructions)
 * and of course go mod tidy to get dependencies 
 * JDownloader2 (Why reinvent the wheel??) This will write .crawljobs for JD so add the folderwatch location to the config file
-* gochron https://github.com/go-co-op/gocron
+* gocron https://github.com/go-co-op/gocron
 
 
 ### Installing
