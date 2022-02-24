@@ -16,12 +16,14 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
+//youtube feed struct
 type Feed struct {
 	XMLName xml.Name `xml:"feed"`
 	Title   string   `xml:"title"`
 	Entries []Entry  `xml:"entry"`
 }
 
+//youtube feed entry struct
 type Entry struct {
 	XMLName   xml.Name   `xml:"entry"`
 	ID        string     `xml:"id"`
@@ -32,11 +34,13 @@ type Entry struct {
 	MGroup    MediaGroup `xml:"group"`
 }
 
+//youtube media group struct
 type MediaGroup struct {
 	XMLName     xml.Name `xml:"group"`
 	Description string   `xml:"description"`
 }
 
+//url constants
 const (
 	YtVideoInfoURL = "https://www.youtube.com/get_video_info?video_id="
 	YtFeedURL      = "https://www.youtube.com/feeds/videos.xml?channel_id="
@@ -45,6 +49,7 @@ const (
 	YtSearchPrefix = "https://www.youtube.com/results?search_query="
 )
 
+//get channel information from youtube
 func GetChanInfoFromYT(chanid string) database.Channel {
 	url := YtChanPrefix + chanid
 	fmt.Println(url)
@@ -61,8 +66,6 @@ func GetChanInfoFromYT(chanid string) database.Channel {
 	if err != nil {
 		panic(err)
 	}
-	// fmt.Printf("%s\n", html)
-
 	//get opengraph content
 	og := opengraph.NewOpenGraph()
 	nerr := og.ProcessHTML(strings.NewReader(string(html)))
@@ -75,6 +78,7 @@ func GetChanInfoFromYT(chanid string) database.Channel {
 	return channel
 }
 
+//update channel video counts and stuff
 func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	youtubefeed := YtFeedURL + chanid
 
@@ -129,6 +133,7 @@ func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	return x
 }
 
+//get information about a specific video
 func GetVideoInfo(videoid string) database.Video {
 	var video database.Video
 	fmt.Println(video)
@@ -201,6 +206,7 @@ func GetVideoInfo(videoid string) database.Video {
 	return video
 }
 
+//create a crawljob for jdownloader
 func MkCrawljob(dbname, fwatch, chanid, title, videoid, date string, updatedb int) {
 	chaninfo := database.GetChanInfo(dbname, chanid)
 	packagename := "<jd:packagename>"
