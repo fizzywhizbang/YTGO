@@ -48,3 +48,4 @@ Inspiration, code snippets, etc.
 
 ## Todo
 * monitor package integration
+* screen shots and instructions
