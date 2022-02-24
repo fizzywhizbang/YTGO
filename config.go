@@ -14,7 +14,7 @@ type YTGO struct {
 	BaseDL      string `json:"base_download_dir"`
 	Defbrowser  string `json:"defbrowser"`
 	FolderWatch string `json:"folderwatch"`
-	Monitor     string `json:"monitor"`
+	Monitor     bool   `json:"monitor"`
 }
 
 const (
@@ -68,7 +68,7 @@ func writeConfig(dbname, basedl, defbrowser, folderwatch, monitor string) bool {
 	fmt.Fprintln(file, "\t\"base_download_dir\":\""+basedl+"\",")
 	fmt.Fprintln(file, "\t\"defbrowser\":\""+defbrowser+"\",")
 	fmt.Fprintln(file, "\t\"folderwatch\":\""+folderwatch+"\",")
-	fmt.Fprintln(file, "\t\"monitor\":\""+monitor+"\"")
+	fmt.Fprintln(file, "\t\"monitor\":"+monitor+"")
 	fmt.Fprintln(file, "}")
 
 	return true
