@@ -2,10 +2,17 @@ package monitor
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 )
 
+func CheckErr(err error, msg string) {
+	if err != nil {
+		log.Println(msg, err.Error())
+	}
+
+}
 func dateConvertTrim(unixtime int, limit int) string {
 	ut := int64(unixtime)
 	time := time.Unix(ut, 0)

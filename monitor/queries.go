@@ -2,9 +2,7 @@ package monitor
 
 import (
 	"database/sql"
-	"fmt"
 	"strings"
-	"time"
 )
 
 type ResultRow map[string]interface{}
@@ -29,26 +27,18 @@ const (
 	InsertNewChannel = "INSERT into channel (displayname, dldir, yt_channelid, lastcheck, archive, notes, date_added) values "
 )
 
-func dbConnectString() string {
+func ConnectDB() *sql.DB {
 	config := loadConfig()
-	connectString := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", config.Db_user, config.Db_password, config.Db_host, config.Db_port, config.Db_name)
-	return connectString
-}
 
-func ConnectDB(connectString string) *sql.DB {
-
-	db, err := sql.Open("mysql", connectString)
-
-	checkErr(err)
-	db.SetConnMaxLifetime(time.Second * 30)
-	db.SetMaxOpenConns(10)
-	db.SetMaxIdleConns(5)
+	connectString := config.Db_name + "?_cache_size=-10000&_journal_mode=WAL&_fk=true"
+	db, err := sql.Open("sqlite3", connectString)
+	CheckErr(err, connectString)
 
 	return db
 
 }
 func updateVideoStatus(videoid string) {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	_, err := DB.Exec("update video set watched=0 where yt_videoid==?", videoid)
 	if err != nil {
 		panic(err.Error())
@@ -57,7 +47,7 @@ func updateVideoStatus(videoid string) {
 }
 
 func insertUpdate(q string) bool {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	query, err := DB.Query(q)
 
 	if err != nil {
@@ -69,7 +59,7 @@ func insertUpdate(q string) bool {
 }
 
 func getVideoForQueue() *sql.Rows {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	results, err := DB.Query("select * from video where watched=0")
 
 	if err != nil {
@@ -80,7 +70,7 @@ func getVideoForQueue() *sql.Rows {
 }
 
 func getLastCheck() int {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	results := DB.QueryRow(GetLastCheck)
 	var channel Channel
 	err := results.Scan(&channel.lastcheck)
@@ -92,7 +82,7 @@ func getLastCheck() int {
 }
 
 func getChanInfo(ytid string) *sql.Row {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	sql := GetChanInfo + "'" + ytid + "'"
 	results := DB.QueryRow(sql)
 	defer DB.Close()
@@ -122,7 +112,7 @@ func getChanName(ytid string) string {
 }
 
 func getChannels(arch string, ob string, sb string) *sql.Rows {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	query := GetActive + arch + " order by " + ob + " " + sb
 	results, _ := DB.Query(query)
 	defer DB.Close()
@@ -130,7 +120,7 @@ func getChannels(arch string, ob string, sb string) *sql.Rows {
 }
 
 func getVideoExist(videoid string) (count int) {
-	DB = ConnectDB(dbConnectString())
+	DB = ConnectDB()
 	sql := "SELECT count(*) from video where yt_videoid=\"" + videoid + "\""
 
 	result := DB.QueryRow(sql)

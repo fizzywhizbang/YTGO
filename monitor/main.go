@@ -17,17 +17,21 @@ import (
 
 var orderby = "id"
 var DB *sql.DB
-var ytcmConfigFile = ""
+var ConfigFile = ""
+var ConfigDir = ""
+
+func main() {
+	MonitorStart(ConfigFile)
+}
 
 func MonitorStart(configfile string) {
 	if len(configfile) == 0 {
 		homedir, err := os.UserHomeDir()
 		checkErr(err)
-		ytcmConfigFile = homedir + configfile
+		ConfigFile = homedir + ".config/ytmon/ytmon.json"
 	} else {
-		ytcmConfigFile = configfile
+		ConfigFile = configfile
 	}
-
 	executeChannelMonitor()
 	executeQueueMonitor()
 }
