@@ -6,6 +6,7 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
+	"github.com/fizzywhizbang/YTGO/monitor"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
 )
@@ -38,7 +39,11 @@ func main() {
 		database.DBCheck(config.Db_name)
 
 	}
-
+	if config.Monitor {
+		cfile := ConfigDir + "/" + ConfigFile
+		//begin go routine
+		go monitor.MonitorStart(cfile)
+	}
 	// Create application
 	App = widgets.NewQApplication(len(os.Args), os.Args)
 	Window = widgets.NewQMainWindow(nil, 0)
