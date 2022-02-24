@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/therecipe/qt/core"
 	"github.com/therecipe/qt/gui"
 	"github.com/therecipe/qt/widgets"
@@ -39,12 +41,14 @@ func loadSettings() {
 
 	folderwatch := widgets.NewQLineEdit(nil)
 	folderwatch.SetText(config.FolderWatch)
-	layout.InsertRow3(8, "FolderWatch Loc: ", folderwatch)
+	layout.InsertRow3(7, "FolderWatch Loc: ", folderwatch)
 
 	monitor := widgets.NewQComboBox(nil)
-	items := []string{"True", "False"}
+	items := []string{"true", "false"}
 	monitor.AddItems(items)
-	monitor.SetCurrentText(config.Monitor)
+
+	monitor.SetCurrentText(strconv.FormatBool(config.Monitor))
+	layout.InsertRow3(8, "Enable Monitor:", monitor)
 
 	buttonGroup := widgets.NewQHBoxLayout()
 	save := widgets.NewQPushButton2("Save", nil)
