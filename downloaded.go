@@ -42,7 +42,7 @@ func contentListDL(chanid string) *widgets.QTreeWidget {
 		fmt.Println(item)
 		if item == 0 {
 			//re-download the video
-			functions.MkCrawljob(config.Db_name, config.FolderWatch, chanid, treeWidget.CurrentItem().Text(1), data, treeWidget.CurrentItem().Text(2), 0)
+			functions.MkCrawljob(config.Db_name, config.FolderWatch, chanid, treeWidget.CurrentItem().Text(1), data, treeWidget.CurrentItem().Text(2), 1)
 			widgets.QMessageBox_Information(nil, "OK", "Added to Queue "+treeWidget.CurrentItem().Text(1), widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 		}
 		if item == 1 {
