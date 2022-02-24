@@ -12,7 +12,7 @@ Although that program worked well I wanted to develop something similar with add
 since I have a server at home I decided to make it more portable and have it use SQLite and perform all functions on one machine as most of the world operates.
 
 ### Note
-* the Go Monitor will still be a separate program so this can be run automatically or manually and server/client
+* the Go Monitor will be part of the program and can be run automatically or manually or can be run as a standalone server/client
 
 ## Getting Started
 
