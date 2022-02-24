@@ -61,7 +61,7 @@ func DBCheck(dbname string) bool {
 		channelSQL += "`id` INTEGER PRIMARY KEY AUTOINCREMENT,"
 		channelSQL += "`displayname` VARCHAR(255),"
 		channelSQL += "`dldir` VARCHAR(255),"
-		channelSQL += "`yt_channelid` VARCHAR(255),"
+		channelSQL += "`yt_channelid` VARCHAR(255) UNIQUE,"
 		channelSQL += "`lastpub` INTEGER,"
 		channelSQL += "`lastcheck` INTEGER,"
 		channelSQL += "`archive` INTEGER,"
@@ -129,7 +129,7 @@ func DBCheck(dbname string) bool {
 }
 
 func DbConnect(dbname string) *sql.DB {
-	connectString := dbname + "?_cache_size=-10000&_journal_mode=WAL"
+	connectString := dbname + "?_cache_size=-10000&_journal_mode=WAL&_fk=true"
 	db, err := sql.Open("sqlite3", connectString)
 	CheckErr(err, connectString)
 
