@@ -18,7 +18,7 @@ func monitorWindow() *widgets.QTextBrowser {
 	message := ""
 	message += "<div class=\"font-weight: bold; font-size:16px; color:green\">#############################################################<br>"
 	message += "last update was at " + functions.DateConvert(database.GetLastCheck(config.Db_name)) + "<br>"
-	message += "The following channels checked<br>"
+	message += "The following videos were found in the last 24 hours<br>"
 	message += "#############################################################</div>"
 	message += "<div class=\"font-weight: bold; font-size:16px; color:green\">#############################################################<br>"
 	statuses := database.GetAllStatus(config.Db_name)
