@@ -15,7 +15,7 @@ import (
 //this is a generic treeview form for displaying feeds and downloaded videos
 func contentListDL(chanid string) *widgets.QTreeWidget {
 
-	// results := getChannelVids(chanid)
+	results := database.GetChannelVids(config.Db_name, chanid)
 
 	treeWidget := widgets.NewQTreeWidget(nil)
 	treeWidget.SetColumnCount(4)
@@ -31,20 +31,23 @@ func contentListDL(chanid string) *widgets.QTreeWidget {
 	treeWidget.Header()
 	treeWidget.SetHeaderLabels([]string{"VidoeID", "Title", "Date", "Status"})
 
-	// for results.Next() {
-	// 	var video Video
-	// 	err := results.Scan(&video.id, &video.yt_videoid, &video.title, &video.description, &video.publisher, &video.publish_date, &video.watched)
-	// 	checkErr(err)
-	// 	watched := "False"
-	// 	if video.watched == 1 {
-	// 		watched = "True"
-	// 	}
-	// 	truncated := truncate.Truncate(video.title, 70, "...", truncate.PositionEnd)
-	// 	treewidgetItem := widgets.NewQTreeWidgetItem2([]string{video.yt_videoid, truncated, dateConvertTrim(video.publish_date, 10), watched}, 0)
-	// 	treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(video.yt_videoid))
+	for results.Next() {
+		var video database.Video
+		err := results.Scan(&video.ID, &video.YT_videoid, &video.Title, &video.Description, &video.Publisher, &video.Publish_date, &video.Downloaded)
+		functions.CheckErr(err, "Unable to get video data (downloaded.go)")
+		watched := "Queued"
+		if video.Downloaded == 2 {
+			watched = "Skipped"
+		}
+		if video.Downloaded == 1 {
+			watched = "True"
+		}
+		truncated := truncate.Truncate(video.Title, 70, "...", truncate.PositionEnd)
+		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{video.YT_videoid, truncated, functions.DateConvertTrim(video.Publish_date, 10), watched}, 0)
+		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(video.YT_videoid))
 
-	// 	treeWidget.AddTopLevelItem(treewidgetItem)
-	// }
+		treeWidget.AddTopLevelItem(treewidgetItem)
+	}
 
 	contentFill(chanid, treeWidget)
 

@@ -41,6 +41,11 @@ func loadSettings() {
 	folderwatch.SetText(config.FolderWatch)
 	layout.InsertRow3(8, "FolderWatch Loc: ", folderwatch)
 
+	monitor := widgets.NewQComboBox(nil)
+	items := []string{"True", "False"}
+	monitor.AddItems(items)
+	monitor.SetCurrentText(config.Monitor)
+
 	buttonGroup := widgets.NewQHBoxLayout()
 	save := widgets.NewQPushButton2("Save", nil)
 	buttonGroup.AddWidget(save, 0, 0)
@@ -56,7 +61,7 @@ func loadSettings() {
 		//if write config returns true then it saved the json file and the user will be notified to
 		//restart the program for the new settings to take effect
 		//meow
-		if writeConfig(dbname.Text(), baseDL.Text(), defbrowser.Text(), folderwatch.Text()) {
+		if writeConfig(dbname.Text(), baseDL.Text(), defbrowser.Text(), folderwatch.Text(), monitor.CurrentText()) {
 			widgets.QMessageBox_Information(nil, "OK", "Please restart the program for new settings to take effect", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 		}
 	})

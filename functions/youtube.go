@@ -104,9 +104,12 @@ func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 			// fmt.Println(feed.Entries[i].VideoId + " " + strconv.Itoa(exists))
 			if exists == 0 {
 
-				database.InsertVideo(dbname, feed.Entries[i].VideoId, feed.Entries[i].Title, feed.Entries[i].Title, chanid, unixdate, "1")
+				//if dl == true then create download and set downloaded == 1 else add to database with value of 2 Skipped
 				if dl {
+					database.InsertVideo(dbname, feed.Entries[i].VideoId, feed.Entries[i].Title, feed.Entries[i].Title, chanid, unixdate, "1")
 					MkCrawljob(dbname, fwatch, chanid, feed.Entries[i].Title, feed.Entries[i].VideoId, feed.Entries[i].Published, 0)
+				} else {
+					database.InsertVideo(dbname, feed.Entries[i].VideoId, feed.Entries[i].Title, feed.Entries[i].Title, chanid, unixdate, "2")
 				}
 				x++
 			}
