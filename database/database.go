@@ -12,11 +12,13 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+// for the category table
 type Category struct {
 	ID   int
 	Name string
 }
 
+//for the video table
 type Video struct {
 	ID           int
 	YT_videoid   string
@@ -27,6 +29,7 @@ type Video struct {
 	Downloaded   int
 }
 
+//for the channel table
 type Channel struct {
 	ID              int
 	Displayname     string
@@ -40,17 +43,20 @@ type Channel struct {
 	Last_feed_count int
 }
 
+//for the tags table
 type Tags struct {
 	ID   int
 	Name string
 }
 
+//for the search table
 type Search struct {
 	ID   int
 	Name string
 	Link string
 }
 
+//check if there is a sqlite database and if not create it
 func DBCheck(dbname string) bool {
 	if !Exists(dbname) {
 		//create database
@@ -128,6 +134,7 @@ func DBCheck(dbname string) bool {
 	return false
 }
 
+//generic database connect setting cach size journal mode and foreign key constraints
 func DbConnect(dbname string) *sql.DB {
 	connectString := dbname + "?_cache_size=-10000&_journal_mode=WAL&_fk=true"
 	db, err := sql.Open("sqlite3", connectString)
@@ -137,6 +144,7 @@ func DbConnect(dbname string) *sql.DB {
 }
 
 //status related queries
+//get all status needs to be renamed to get all category but I'm being lazy today
 func GetAllStatus(dbname string) *sql.Rows {
 
 	DB := DbConnect(dbname)
@@ -148,6 +156,8 @@ func GetAllStatus(dbname string) *sql.Rows {
 	defer DB.Close()
 	return results
 }
+
+//get a category name by id
 func GetStatus(dbname, status string) string {
 	DB := DbConnect(dbname)
 	results := DB.QueryRow("SELECT * FROM status WHERE ID=?", status)
@@ -158,6 +168,8 @@ func GetStatus(dbname, status string) string {
 	defer DB.Close()
 	return statusModel.Name
 }
+
+//get category id from name
 func GetStatusName(dbname, status string) string {
 	DB := DbConnect(dbname)
 	results := DB.QueryRow("SELECT * FROM status WHERE status_name=?", status)
@@ -168,12 +180,16 @@ func GetStatusName(dbname, status string) string {
 	defer DB.Close()
 	return strconv.Itoa(statusModel.ID)
 }
+
+//insert a new category
 func StatusInsert(dbname, status string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("INSERT into status (status_name) values (?)", status)
 	CheckErr(err, "Unable to get insert category")
 	DB.Close()
 }
+
+//get a count of the number of categories
 func StatusCount(dbname string) (count int) {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("Select count(*) from status")
@@ -185,6 +201,8 @@ func StatusCount(dbname string) (count int) {
 	defer DB.Close()
 	return count
 }
+
+//update a category name
 func StatusUpdate(dbname, id, status string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("update status set status_name=? where id=?", status, id)
@@ -192,6 +210,8 @@ func StatusUpdate(dbname, id, status string) {
 		panic(err.Error())
 	}
 }
+
+//return the integer value of the status id from name
 func GetStatusIDI(dbname, status string) int {
 	DB := DbConnect(dbname)
 	results := DB.QueryRow("SELECT * FROM status where status_name=?", status)
@@ -207,7 +227,7 @@ func GetStatusIDI(dbname, status string) int {
 ///// end status related
 
 //tag related queries
-
+//get all tags from the table
 func GetAllTags(dbname, ob string) *sql.Rows {
 	DB := DbConnect(dbname)
 	sql := "SELECT * from tags order by " + ob
@@ -218,6 +238,7 @@ func GetAllTags(dbname, ob string) *sql.Rows {
 	return results
 }
 
+//get a count of tags in the table
 func TagCount(dbname string) (count int) {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("Select count(*) from tags")
@@ -227,11 +248,14 @@ func TagCount(dbname string) (count int) {
 	return count
 }
 
+//update a tag name
 func TagUpdate(dbname, id, tag string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("update tags set tag=? where id=?", tag, id)
 	CheckErr(err, "unable to update tag")
 }
+
+//insert a new tag name
 func TagInsert(dbname, tag string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("INSERT into tags (tag) values (?)", tag)
@@ -241,6 +265,7 @@ func TagInsert(dbname, tag string) {
 //end tag related queries
 
 //video related queries
+//this is for the main display to show the latest downloded videos
 func GetLatestVideos(dbname string) *sql.Rows {
 	DB := DbConnect(dbname)
 	unixTime := time.Now().Unix()
@@ -256,6 +281,8 @@ func GetLatestVideos(dbname string) *sql.Rows {
 	return results
 
 }
+
+//check if a video exists
 func GetVideoExist(dbname, videoid string) (count int) {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("SELECT count(*) from video where yt_videoid=?", videoid)
@@ -268,6 +295,7 @@ func GetVideoExist(dbname, videoid string) (count int) {
 	return count
 }
 
+//get info for a particular video
 func GetVideoInfo(dbname, videoid string) Video {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("SELECT * from video where yt_videoid=?", videoid)
@@ -282,6 +310,7 @@ func GetVideoInfo(dbname, videoid string) Video {
 	return video
 }
 
+//insert a new video to the table
 func InsertVideo(dbname, videoid, title, description, publisher, publish_date, downloaded string) {
 	DB := DbConnect(dbname)
 	if GetVideoExist(dbname, videoid) == 0 {
@@ -309,6 +338,8 @@ func InsertVideo(dbname, videoid, title, description, publisher, publish_date, d
 	}
 
 }
+
+//get all videos for a particular channel
 func GetChannelVids(dbname, publisher string) *sql.Rows {
 	DB := DbConnect(dbname)
 	results, err := DB.Query("SELECT * FROM video WHERE publisher=? order by publish_date", publisher)
@@ -321,12 +352,13 @@ func GetChannelVids(dbname, publisher string) *sql.Rows {
 ///// end video related queries
 
 //channel related queries
-func CheckCount(dbname, status string) (count int) {
+//get a count of channels by category
+func CheckCount(dbname, cat string) (count int) {
 
 	DB := DbConnect(dbname)
-	sql := "SELECT count(*) from channel where archive=" + status
+	sql := "SELECT count(*) from channel where archive=" + cat
 
-	if status == "" {
+	if cat == "" {
 		//count all
 		sql = "SELECT count(*) from channel"
 	}
@@ -339,6 +371,8 @@ func CheckCount(dbname, status string) (count int) {
 	return count
 
 }
+
+//get the last time a channel was checked
 func GetLastCheck(dbname string) int {
 	DB := DbConnect(dbname)
 	results := DB.QueryRow("select max(lastcheck) from channel")
@@ -351,6 +385,7 @@ func GetLastCheck(dbname string) int {
 	return channel.Lastcheck
 }
 
+//get channel details
 func GetChanInfo(dbname, ytid string) Channel {
 	DB := DbConnect(dbname)
 	results := DB.QueryRow("SELECT * FROM channel WHERE yt_channelid=?", ytid)
@@ -364,13 +399,16 @@ func GetChanInfo(dbname, ytid string) Channel {
 	return channel
 }
 
-func GetChannels(dbname, arch, ob string) *sql.Rows {
+//get all channels by category
+func GetChannels(dbname, cat, ob string) *sql.Rows {
 	DB := DbConnect(dbname)
-	results, err := DB.Query("SELECT * FROM channel where archive=? ORDER BY ? asc", arch, ob)
+	results, err := DB.Query("SELECT * FROM channel where archive=? ORDER BY ? asc", cat, ob)
 	CheckErr(err, "Unable to get channels (database.go)")
 	defer DB.Close()
 	return results
 }
+
+//get the last download date for a particular channel
 func GetLastDownload(dbname, chanid string) int {
 	DB := DbConnect(dbname)
 
@@ -383,6 +421,8 @@ func GetLastDownload(dbname, chanid string) int {
 	defer DB.Close()
 	return video.Publish_date
 }
+
+//delete a channel (with FK constraints all associated videos will be deleted)
 func DeleteChannel(dbname, chanid string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("delete from channel where yt_channelid=?", chanid)
@@ -393,15 +433,19 @@ func DeleteChannel(dbname, chanid string) {
 	defer DB.Close()
 
 }
-func MoveTo(dbname, chanid, status string) {
+
+//change the category of a channel
+func MoveTo(dbname, chanid, cat string) {
 	DB := DbConnect(dbname)
 
-	_, err := DB.Exec("update channel set archive=? where yt_channelid=?", status, chanid)
+	_, err := DB.Exec("update channel set archive=? where yt_channelid=?", cat, chanid)
 	if err != nil {
 		log.Println(err)
 	}
 	defer DB.Close()
 }
+
+//update the last published date for a channel
 func UpdateChanLastPub(dbname, chanid, unix string) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("update channel set lastpub=? where yt_channelid=?", unix, chanid)
@@ -410,6 +454,8 @@ func UpdateChanLastPub(dbname, chanid, unix string) {
 	}
 	defer DB.Close()
 }
+
+//update the last time a channel was checked for new content
 func UpdateChecked(dbname, chanid string) {
 	DB := DbConnect(dbname)
 	timestamp := time.Now().Unix()
@@ -421,6 +467,8 @@ func UpdateChecked(dbname, chanid string) {
 	}
 	defer DB.Close()
 }
+
+//update the number of videos showing in the feed
 func UpdateFeedCT(dbname, chanid string, feedCount int) {
 	DB := DbConnect(dbname)
 	_, err := DB.Exec("UPDATE channel set last_feed_count=? where yt_channelid=?", feedCount, chanid)
@@ -430,6 +478,7 @@ func UpdateFeedCT(dbname, chanid string, feedCount int) {
 	DB.Close()
 }
 
+//check if the channel exists
 func GetChanExist(dbname, chanid string) (count int) {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("SELECT count(*) from channel where yt_channelid=?", chanid)
@@ -442,6 +491,7 @@ func GetChanExist(dbname, chanid string) (count int) {
 	return count
 }
 
+//search channels by some string (tags, notes, channel name, channel directory, channel with a video by title)
 func ChannelSearch(dbname, GlobalStatus, str, searchType string) *sql.Rows {
 	//first split the string at qoutes so we can distinguish between phrases and words
 	re := regexp.MustCompile(`[^\s"]+|"([^"]*)"`)
@@ -599,6 +649,8 @@ func ChannelSearch(dbname, GlobalStatus, str, searchType string) *sql.Rows {
 	return results
 
 }
+
+//modify channel settings it will even update the channel id key and cascade to the video table
 func ModChanSettings(dbname, channelURL, newChanURL, displayname, channelDirectory, textArea string, statusSelector int) bool {
 	s := statusSelector
 
@@ -620,7 +672,7 @@ func ModChanSettings(dbname, channelURL, newChanURL, displayname, channelDirecto
 	return true
 }
 
-//
+//insert a new channel
 func InsertChannel(dbname string, channel Channel) bool {
 	query := "INSERT into channel (displayname, dldir, yt_channelid, lastcheck, archive, notes, date_added) values "
 	query += "(\"" + channel.Displayname + "\",\"" + channel.Dldir + "\",\"" + channel.Yt_channelid + "\",\"" + strconv.Itoa(channel.Lastcheck) + "\","
@@ -638,7 +690,7 @@ func InsertChannel(dbname string, channel Channel) bool {
 //end channel related queries
 
 //search related queries
-
+//get all custom search URLS
 func GetAllSearches(dbname string) *sql.Rows {
 	DB := DbConnect(dbname)
 
@@ -652,6 +704,7 @@ func GetAllSearches(dbname string) *sql.Rows {
 	return results
 }
 
+//get a count of custom searches
 func SearchCount(dbname string) (count int) {
 	DB := DbConnect(dbname)
 	result := DB.QueryRow("Select count(*) from searches")
@@ -663,6 +716,7 @@ func SearchCount(dbname string) (count int) {
 	return count
 }
 
+//update a search
 func SearchUpdate(dbname, id, name, link string) bool {
 	DB := DbConnect(dbname)
 	query := "update searches set name=\"" + name + "\", link=\"" + link + "\" where id=" + id
@@ -673,6 +727,8 @@ func SearchUpdate(dbname, id, name, link string) bool {
 	defer DB.Close()
 	return true
 }
+
+//add a new search
 func SearchInsert(dbname, name, link string) bool {
 	DB := DbConnect(dbname)
 	query := "INSERT into searches (name, link) values (\"" + name + "\", \"" + link + "\")"
@@ -684,6 +740,7 @@ func SearchInsert(dbname, name, link string) bool {
 	return true
 }
 
+//delete a search
 func SearchDelete(dbname, id string) bool {
 	DB := DbConnect(dbname)
 	query := "delete from searches where id=" + id
