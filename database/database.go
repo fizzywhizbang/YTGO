@@ -247,7 +247,7 @@ func GetLatestVideos(dbname string) *sql.Rows {
 	begin := unixTime - 86400
 	bs := strconv.Itoa(int(begin))
 	et := strconv.Itoa(int(unixTime))
-	GetLatestVideos := "select * from video where publish_date between " + bs + " and " + et + " order by publish_date desc"
+	GetLatestVideos := "select * from video where publish_date between " + bs + " and " + et + " and downloaded=1 order by publish_date desc"
 
 	results, err := DB.Query(GetLatestVideos)
 	CheckErr(err, "error getting latest videos")
@@ -268,21 +268,45 @@ func GetVideoExist(dbname, videoid string) (count int) {
 	return count
 }
 
-func InsertVideo(dbname, videoid, title, description, publisher, publish_date, downloaded string) {
-	titleReplaceQuotes := strings.ReplaceAll(title, `"`, `\"`)
-	descriptionReplaceQuotes := strings.ReplaceAll(description, `"`, `\"`)
-	query := "insert into video (yt_videoid, title, description, publisher, publish_date, downloaded) values "
-	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + downloaded + "\")"
-
+func GetVideoInfo(dbname, videoid string) Video {
 	DB := DbConnect(dbname)
-
-	_, err := DB.Exec(query)
+	result := DB.QueryRow("SELECT * from video where yt_videoid=?", videoid)
+	var video Video
+	err := result.Scan(&video.ID, &video.YT_videoid, &video.Title, &video.Description, &video.Publisher, &video.Publish_date, &video.Downloaded)
 	if err != nil {
-		log.Println(err)
+
+		return Video{0, "", "", "", "", 0, 0}
 	}
+
 	defer DB.Close()
-	//update channel last pub
-	UpdateChanLastPub(dbname, publisher, publish_date)
+	return video
+}
+
+func InsertVideo(dbname, videoid, title, description, publisher, publish_date, downloaded string) {
+	DB := DbConnect(dbname)
+	if GetVideoExist(dbname, videoid) == 0 {
+		titleReplaceQuotes := strings.ReplaceAll(title, `"`, `\"`)
+		descriptionReplaceQuotes := strings.ReplaceAll(description, `"`, `\"`)
+		query := "insert into video (yt_videoid, title, description, publisher, publish_date, downloaded) values "
+		query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + downloaded + "\")"
+
+		_, err := DB.Exec(query)
+		if err != nil {
+			log.Println(err)
+		}
+		defer DB.Close()
+
+		//update channel last pub
+		UpdateChanLastPub(dbname, publisher, publish_date)
+	} else {
+		//update the video information
+
+		_, err := DB.Exec("UPDATE video set downloaded=? where yt_videoid=?", downloaded, videoid)
+		if err != nil {
+			log.Println(err)
+		}
+		defer DB.Close()
+	}
 
 }
 func GetChannelVids(dbname, publisher string) *sql.Rows {

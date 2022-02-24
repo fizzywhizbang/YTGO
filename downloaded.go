@@ -15,7 +15,7 @@ import (
 //this is a generic treeview form for displaying feeds and downloaded videos
 func contentListDL(chanid string) *widgets.QTreeWidget {
 
-	results := database.GetChannelVids(config.Db_name, chanid)
+	// results := database.GetChannelVids(config.Db_name, chanid)
 
 	treeWidget := widgets.NewQTreeWidget(nil)
 	treeWidget.SetColumnCount(4)
@@ -30,24 +30,6 @@ func contentListDL(chanid string) *widgets.QTreeWidget {
 	treeWidget.SetStyleSheet(tableColors)
 	treeWidget.Header()
 	treeWidget.SetHeaderLabels([]string{"VidoeID", "Title", "Date", "Status"})
-
-	for results.Next() {
-		var video database.Video
-		err := results.Scan(&video.ID, &video.YT_videoid, &video.Title, &video.Description, &video.Publisher, &video.Publish_date, &video.Downloaded)
-		functions.CheckErr(err, "Unable to get video data (downloaded.go)")
-		watched := "Queued"
-		if video.Downloaded == 2 {
-			watched = "Skipped"
-		}
-		if video.Downloaded == 1 {
-			watched = "True"
-		}
-		truncated := truncate.Truncate(video.Title, 70, "...", truncate.PositionEnd)
-		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{video.YT_videoid, truncated, functions.DateConvertTrim(video.Publish_date, 10), watched}, 0)
-		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(video.YT_videoid))
-
-		treeWidget.AddTopLevelItem(treewidgetItem)
-	}
 
 	contentFill(chanid, treeWidget)
 
@@ -91,9 +73,12 @@ func contentFill(chanid string, treeWidget *widgets.QTreeWidget) *widgets.QTreeW
 		var video database.Video
 		err := results.Scan(&video.ID, &video.YT_videoid, &video.Title, &video.Description, &video.Publisher, &video.Publish_date, &video.Downloaded)
 		functions.CheckErr(err, "Unable to get videos for channel")
-		watched := "False"
+		watched := "Queued"
+		if video.Downloaded == 2 {
+			watched = "Skipped"
+		}
 		if video.Downloaded == 1 {
-			watched = "True"
+			watched = "Downloaded"
 		}
 		truncated := truncate.Truncate(video.Title, 65, "...", truncate.PositionEnd)
 		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{video.YT_videoid, truncated, functions.DateConvertTrim(video.Publish_date, 10), watched}, 0)

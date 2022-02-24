@@ -223,11 +223,9 @@ func MkCrawljob(dbname, fwatch, chanid, title, videoid, date string, updatedb in
 	//check channel id before video because we might want to download a video for which there is no sub
 	if database.GetChanExist(dbname, chanid) != 0 {
 		if updatedb == 1 {
-			if database.GetVideoExist(dbname, videoid) == 0 {
-				//if this is true then it's coming from the feed
-				unixdate := ConvertYMDtoUnix(date)
-				database.InsertVideo(dbname, videoid, title, title, chanid, unixdate, "1")
-			}
+			unixdate := ConvertYMDtoUnix(date)
+			database.InsertVideo(dbname, videoid, title, title, chanid, unixdate, "1")
+
 		}
 
 	}
