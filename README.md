@@ -46,3 +46,5 @@ Inspiration, code snippets, etc.
 * [ytcc](https://github.com/woefe/ytcc)
 * [therecipe/qt] (https://github.com/therecipe/qt)
 
+## Todo
+* monitor package integration
