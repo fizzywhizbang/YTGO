@@ -47,5 +47,5 @@ Inspiration, code snippets, etc.
 * [therecipe/qt] (https://github.com/therecipe/qt)
 
 ## Todo
-* monitor package integration
+* monitor package integration (testing)
 * screen shots and instructions
