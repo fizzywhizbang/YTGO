@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -76,4 +77,22 @@ func ConvertYMDtoUnix(ymd string) string {
 		panic(err.Error())
 	}
 	return strconv.Itoa(int(t.Unix()))
+}
+
+func Cleanfwatch(fwatch string) bool {
+	added := fwatch + "added/"
+	dir, err := os.Open(added)
+	if err != nil {
+		log.Println("Unable to access FolderWatch")
+	}
+	defer dir.Close()
+	names, _ := dir.Readdirnames(-1)
+	for _, name := range names {
+		err = os.RemoveAll(filepath.Join(added, name))
+		if err != nil {
+			log.Println("Unable to remove crawljobs")
+			return false
+		}
+	}
+	return true
 }

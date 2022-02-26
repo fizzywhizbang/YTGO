@@ -79,6 +79,15 @@ func main() {
 		loadSettings()
 	})
 
+	binClean := systemSettings.AddAction("Clean Folderwatch")
+	binClean.ConnectTriggered(func(checked bool) {
+		if functions.Cleanfwatch(config.FolderWatch) {
+			widgets.QMessageBox_Information(nil, "OK", "FolderWatch DIR Cleaned ", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+		} else {
+			widgets.QMessageBox_Information(nil, "OK", "Error cleaning FolderWatch DIR ", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+		}
+	})
+
 	addChan := subOpts.AddAction("Add Channel")
 	addChan.SetShortcuts2(gui.QKeySequence__New)
 	addChan.ConnectTriggered(func(checked bool) {
