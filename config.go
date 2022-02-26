@@ -52,7 +52,7 @@ func CkConfig() bool {
 func createConfigFile(homedir string) bool {
 	base := homedir + "/YTGOVideos/"
 	folderWatch := homedir + "/bin/JDownloader 2.0/folderwatch/"
-	return writeConfig(ConfigDir+"/ytgo.db", base, "", folderWatch, "False")
+	return writeConfig(ConfigDir+"/ytgo.db", base, "", folderWatch, "false")
 }
 
 func writeConfig(dbname, basedl, defbrowser, folderwatch, monitor string) bool {
