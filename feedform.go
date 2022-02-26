@@ -100,7 +100,7 @@ func feedWindow(chanid string) {
 			group.AddWidget(dateLabel, 0, 0)
 
 			actionCombo := widgets.NewQComboBox(nil)
-			list := []string{"Actions", "Download " + strconv.Itoa(i) + "", "Skip " + strconv.Itoa(i) + "", "View " + strconv.Itoa(i) + ""}
+			list := []string{"Actions", "Download " + strconv.Itoa(i) + "", "Skip " + strconv.Itoa(i) + "", "View " + strconv.Itoa(i) + "", "Find Similar " + strconv.Itoa(i) + ""}
 			actionCombo.AddItems(list)
 
 			status := "False"
@@ -143,6 +143,11 @@ func feedWindow(chanid string) {
 				if action[0] == "View" {
 					row, _ := strconv.Atoi(action[1])
 					url := YtWatchPrefix + feed.Entries[row].VideoId
+					functions.Openbrowser(url, config.Defbrowser)
+				}
+				if action[0] == "Find Similar" {
+					row, _ := strconv.Atoi(action[1])
+					url := YtSearchPrefix + feed.Entries[row].VideoId + "&sp=CAI%253D" //order by upload date
 					functions.Openbrowser(url, config.Defbrowser)
 				}
 			})
