@@ -75,6 +75,7 @@ func feedWindow(chanid string) {
 
 	formlayout.AddRow6(group)
 	database.UpdateChecked(config.Db_name, chanid)
+	database.UpdateFeedCT(config.Db_name, chanid, len(feed.Entries))
 	if len(feed.Entries) >= 1 {
 		//db fields yt_videoid, title, description, publisher, publish_date(unix), watched(if added to download then 1 else 0)
 		for i := 0; i < len(feed.Entries); i++ {
