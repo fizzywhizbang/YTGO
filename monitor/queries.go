@@ -18,7 +18,7 @@ const (
 
 	GetChanVids = "SELECT * FROM video WHERE publisher="
 
-	GetVideoStatus = "SELECT watched FROM video WHERE yt_videoid="
+	GetVideoStatus = "SELECT downloaded FROM video WHERE yt_videoid="
 
 	GetLatestVideos = "select * from video where publish_date between unix_timestamp() - 86400 and unix_timestamp() order by publish_date desc"
 
@@ -39,7 +39,7 @@ func ConnectDB() *sql.DB {
 }
 func updateVideoStatus(videoid string) {
 	DB = ConnectDB()
-	_, err := DB.Exec("update video set watched=0 where yt_videoid==?", videoid)
+	_, err := DB.Exec("update video set downloaded=0 where yt_videoid==?", videoid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -60,7 +60,7 @@ func insertUpdate(q string) bool {
 
 func getVideoForQueue() *sql.Rows {
 	DB = ConnectDB()
-	results, err := DB.Query("select * from video where watched=0")
+	results, err := DB.Query("select * from video where downloaded=0")
 
 	if err != nil {
 		return results
@@ -138,11 +138,11 @@ func updateChanLastPub(chanid string, unix string) {
 	insertUpdate(query)
 }
 
-func insertVideo(videoid string, title string, description string, publisher string, publish_date string, watched string) {
+func insertVideo(videoid string, title string, description string, publisher string, publish_date string, downloaded string) {
 	titleReplaceQuotes := strings.ReplaceAll(title, `"`, `\"`)
 	descriptionReplaceQuotes := strings.ReplaceAll(description, `"`, `\"`)
-	query := "insert into video (yt_videoid, title, description, publisher, publish_date, watched) values "
-	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + watched + "\")"
+	query := "insert into video (yt_videoid, title, description, publisher, publish_date, downloaded) values "
+	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + downloaded + "\")"
 
 	insertUpdate(query)
 	//update channel last pub
