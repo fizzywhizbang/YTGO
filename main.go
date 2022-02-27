@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -118,8 +119,8 @@ func main() {
 	gu.SetShortcuts2(gui.QKeySequence__Bold)
 	gu.ConnectTriggered(func(checked bool) {
 		if GlobalChannelID != "" {
-
-			functions.Openbrowser(config.Defbrowser, GlobalChannelID)
+			fmt.Println(config.Defbrowser)
+			functions.Openbrowser(GlobalChannelID, config.Defbrowser)
 		}
 	})
 
