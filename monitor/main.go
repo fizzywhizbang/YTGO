@@ -158,7 +158,7 @@ func getChannelVideos(chanid string) {
 
 func executeQueueMonitor() {
 	scheduler := gocron.NewScheduler(time.UTC)
-	// scheduler.SingletonMode()
+	scheduler.SingletonMode()
 	scheduler.Every(1).Minutes().Do(queueCheck)
 	scheduler.StartBlocking()
 }
