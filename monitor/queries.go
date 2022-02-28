@@ -50,8 +50,6 @@ func updateVideoStatus(videoid string) {
 func insertUpdate(q string) bool {
 	DB = ConnectDB()
 	_, err := DB.Exec(q)
-	CheckErr(err, "Unable to get insert category")
-	DB.Close()
 
 	if err != nil {
 		panic(err.Error())
