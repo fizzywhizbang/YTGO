@@ -2,6 +2,7 @@ package monitor
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 )
 
@@ -39,7 +40,7 @@ func ConnectDB() *sql.DB {
 }
 func updateVideoStatus(videoid string) {
 	DB = ConnectDB()
-	_, err := DB.Exec("update video set downloaded=0 where yt_videoid==?", videoid)
+	_, err := DB.Exec("update video set downloaded=1 where yt_videoid==?", videoid)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -48,12 +49,13 @@ func updateVideoStatus(videoid string) {
 
 func insertUpdate(q string) bool {
 	DB = ConnectDB()
-	query, err := DB.Query(q)
+	_, err := DB.Exec(q)
+	CheckErr(err, "Unable to get insert category")
+	DB.Close()
 
 	if err != nil {
 		panic(err.Error())
 	}
-	query.Close()
 	defer DB.Close()
 	return true
 }
@@ -130,6 +132,7 @@ func getVideoExist(videoid string) (count int) {
 		return 0
 	}
 	defer DB.Close()
+	fmt.Println("video count:", count)
 	return count
 }
 
@@ -144,7 +147,7 @@ func insertVideo(videoid string, title string, description string, publisher str
 	query := "insert into video (yt_videoid, title, description, publisher, publish_date, downloaded) values "
 	query += "(\"" + videoid + "\", \"" + titleReplaceQuotes + "\",\"" + descriptionReplaceQuotes + "\",\"" + publisher + "\",\"" + publish_date + "\",\"" + downloaded + "\")"
 
-	insertUpdate(query)
+	fmt.Println(insertUpdate(query))
 	//update channel last pub
 	updateChanLastPub(publisher, publish_date)
 

@@ -38,7 +38,7 @@ func MonitorStart(configfile string) {
 
 func queueCheck() {
 	//if queue is running ignore signal
-
+	fmt.Println("Checking queue for new videos")
 	videos := getVideoForQueue()
 	videosUpdate := []string{}
 	for videos.Next() {
@@ -139,9 +139,10 @@ func getChannelVideos(chanid string) {
 
 			unixdate := convertYMDtoUnix(date)
 			exists := getVideoExist(feed.Entries[i].VideoId)
-			fmt.Println(feed.Entries[i].VideoId + " " + strconv.Itoa(exists))
+			fmt.Println("insert video", feed.Entries[i].VideoId+" "+strconv.Itoa(exists))
 			if exists == 0 {
 				//insert into database with watched status 0 and begin queue check
+				fmt.Println("Inserting", feed.Entries[i].Title)
 				insertVideo(feed.Entries[i].VideoId, feed.Entries[i].Title, feed.Entries[i].Title, chanid, unixdate, "0")
 				i++
 				resultCount++
@@ -157,8 +158,8 @@ func getChannelVideos(chanid string) {
 
 func executeQueueMonitor() {
 	scheduler := gocron.NewScheduler(time.UTC)
-	scheduler.SingletonMode()
-	scheduler.Every(10).Minutes().Do(queueCheck)
+	// scheduler.SingletonMode()
+	scheduler.Every(1).Minutes().Do(queueCheck)
 	scheduler.StartBlocking()
 }
 

@@ -55,6 +55,8 @@ func mkCrawljob(chanid string, title string, videoid string, date string, update
 				unixdate := convertYMDtoUnix(date)
 				insertVideo(videoid, title, title, chanid, unixdate, "1")
 			}
+		} else {
+
 		}
 
 	}
