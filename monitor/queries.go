@@ -52,7 +52,7 @@ func insertUpdate(q string) bool {
 	_, err := DB.Exec(q)
 
 	if err != nil {
-		panic(err.Error())
+		return false
 	}
 	defer DB.Close()
 	return true

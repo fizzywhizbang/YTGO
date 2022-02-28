@@ -32,8 +32,8 @@ func MonitorStart(configfile string) {
 	} else {
 		ConfigFile = configfile
 	}
-	executeChannelMonitor()
-	executeQueueMonitor()
+	go executeChannelMonitor()
+	go executeQueueMonitor()
 }
 
 func queueCheck() {
