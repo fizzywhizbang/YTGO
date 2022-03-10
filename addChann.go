@@ -164,13 +164,11 @@ func addChannel(chanid string) {
 			//do action on marking and downloading
 			if markAll.IsChecked() && !downloadAll.IsChecked() {
 				ct = functions.UpdateChan(config.Db_name, config.FolderWatch, channel.Yt_channelid, false, false)
-				// widgets.QMessageBox_Information(nil, "OK", "Get feed and mark all downloaded", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
 				progressBar.SetValue(progressBar.Maximum() / 2)
 			}
 			if downloadAll.IsChecked() {
 				//ignore markall and download all from feed
-				// widgets.QMessageBox_Information(nil, "OK", "Downloading all from feed", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-				ct = functions.UpdateChan(config.Db_name, config.FolderWatch, GlobalChannelID, true, false)
+				ct = functions.UpdateChan(config.Db_name, config.FolderWatch, channel.Yt_channelid, true, false)
 				progressBar.SetValue(progressBar.Maximum() / 2)
 			}
 			//if view settings open settings window after closing this one
