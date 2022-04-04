@@ -148,7 +148,8 @@ func feedWindow(chanid string) {
 				}
 				if action[0] == "Find" {
 					row, _ := strconv.Atoi(action[2])
-					url := YtSearchPrefix + feed.Entries[row].Title + "&sp=CAI%253D" //order by upload date
+					title := strings.Replace(feed.Entries[row].Title, " ", "+", -1)
+					url := YtSearchPrefix + title + "&sp=CAI%253D" //order by upload date
 					functions.Openbrowser(url, config.Defbrowser)
 				}
 			})
