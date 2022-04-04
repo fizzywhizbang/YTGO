@@ -147,7 +147,7 @@ func feedWindow(chanid string) {
 					functions.Openbrowser(url, config.Defbrowser)
 				}
 				if action[0] == "Find" {
-					row, _ := strconv.Atoi(action[1])
+					row, _ := strconv.Atoi(action[2])
 					url := YtSearchPrefix + feed.Entries[row].Title + "&sp=CAI%253D" //order by upload date
 					functions.Openbrowser(url, config.Defbrowser)
 				}
