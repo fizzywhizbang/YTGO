@@ -66,7 +66,8 @@ func showSearches() {
 
 		if column == 3 {
 			url := tableWidget.Item(row, 2).Text()
-			functions.Openbrowser(config.Defbrowser, url)
+			// fmt.Println(url, config.Defbrowser)
+			functions.Openbrowser(url, config.Defbrowser)
 		}
 	})
 
