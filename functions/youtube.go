@@ -1,6 +1,7 @@
 package functions
 
 import (
+	"encoding/json"
 	"encoding/xml"
 	"fmt"
 	"io/ioutil"
@@ -16,14 +17,17 @@ import (
 	"github.com/therecipe/qt/widgets"
 )
 
-//youtube feed struct
+var Found = false
+var S interface{} = ""
+
+// youtube feed struct
 type Feed struct {
 	XMLName xml.Name `xml:"feed"`
 	Title   string   `xml:"title"`
 	Entries []Entry  `xml:"entry"`
 }
 
-//youtube feed entry struct
+// youtube feed entry struct
 type Entry struct {
 	XMLName   xml.Name   `xml:"entry"`
 	ID        string     `xml:"id"`
@@ -34,13 +38,13 @@ type Entry struct {
 	MGroup    MediaGroup `xml:"group"`
 }
 
-//youtube media group struct
+// youtube media group struct
 type MediaGroup struct {
 	XMLName     xml.Name `xml:"group"`
 	Description string   `xml:"description"`
 }
 
-//url constants
+// url constants
 const (
 	YtVideoInfoURL = "https://www.youtube.com/get_video_info?video_id="
 	YtFeedURL      = "https://www.youtube.com/feeds/videos.xml?channel_id="
@@ -49,9 +53,91 @@ const (
 	YtSearchPrefix = "https://www.youtube.com/results?search_query="
 )
 
-//get channel information from youtube
+func getChanID(url string) string {
+
+	data, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	doc, err := goquery.NewDocumentFromReader(data.Body)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	s := doc.Find("script")
+	for i := range s.Nodes {
+
+		if strings.Contains(s.Eq(i).Text(), "ytInitialData") && !strings.Contains(s.Eq(i).Text(), "(function") {
+
+			text := strings.Replace(s.Eq(i).Text(), "var ytInitialData = ", "", -1)
+			text = strings.Replace(text, ";", "", -1)
+
+			m := map[string]interface{}{}
+
+			// Parsing/Unmarshalling JSON encoding/json
+			err := json.Unmarshal([]byte(text), &m)
+
+			if err != nil {
+				panic(err)
+			}
+			parseMap(m)
+			return S.(string)
+
+		}
+
+	}
+	// Creating the maps for JSON
+	return "Unknown"
+}
+
+func parseMap(aMap map[string]interface{}) interface{} {
+	uc := ""
+
+	Found = false
+	for key, val := range aMap {
+		switch concreteVal := val.(type) {
+		case map[string]interface{}:
+			if !Found {
+				parseMap(val.(map[string]interface{}))
+			}
+
+		default:
+			uc = fmt.Sprintf("%v", concreteVal)
+
+			if len(key) > 1 && strings.HasPrefix(uc, "UC") && !Found {
+				Found = true
+
+				S = concreteVal
+				return concreteVal
+			}
+
+		}
+	}
+	return uc
+}
+
+// get channel information from youtube
 func GetChanInfoFromYT(chanid string) database.Channel {
 	url := YtChanPrefix + chanid
+
+	if strings.HasPrefix(chanid, "UC") {
+		url = YtChanPrefix + chanid
+
+	} else {
+		//get UC value
+		if strings.HasPrefix(chanid, "@") {
+			ucChanID := getChanID("https://www.youtube.com/" + chanid)
+			url = YtChanPrefix + ucChanID
+
+			chanid = ucChanID
+		} else {
+			ucChanID := getChanID("https://www.youtube.com/user/" + chanid)
+			url = YtChanPrefix + ucChanID
+			chanid = ucChanID
+		}
+
+	}
 	fmt.Println(url)
 	var channel database.Channel
 
@@ -78,7 +164,7 @@ func GetChanInfoFromYT(chanid string) database.Channel {
 	return channel
 }
 
-//update channel video counts and stuff
+// update channel video counts and stuff
 func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	youtubefeed := YtFeedURL + chanid
 
@@ -135,7 +221,7 @@ func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	return x
 }
 
-//get information about a specific video
+// get information about a specific video
 func GetVideoInfo(videoid string) database.Video {
 	var video database.Video
 	fmt.Println(video)
@@ -208,7 +294,7 @@ func GetVideoInfo(videoid string) database.Video {
 	return video
 }
 
-//create a crawljob for jdownloader
+// create a crawljob for jdownloader
 func MkCrawljob(dbname, fwatch, chanid, title, videoid, date string, updatedb int) {
 	chaninfo := database.GetChanInfo(dbname, chanid)
 	packagename := "<jd:packagename>"
