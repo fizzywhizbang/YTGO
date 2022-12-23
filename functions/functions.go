@@ -40,9 +40,9 @@ func Openbrowser(url, defbrowser string) {
 	//leading space there intentionally
 	urlstring := url
 	if !strings.Contains(url, "https://") {
-		urlstring = " https://www.youtube.com/channel/" + url
+		urlstring = "https://www.youtube.com/channel/" + url
 	}
-
+	// fmt.Println(urlstring)
 	cmd := exec.Command(defbrowser, "-new-tab", urlstring)
 	if err := cmd.Start(); err != nil {
 		log.Fatalln("can't open browser", err)

@@ -52,7 +52,8 @@ func showSubs(status string) {
 			err := channels.Scan(&channel.ID, &channel.Displayname, &channel.Dldir, &channel.Yt_channelid, &channel.Lastpub, &channel.Lastcheck, &channel.Archive, &channel.Notes, &channel.Date_added, &channel.Last_feed_count)
 			functions.CheckErr(err, "Unable to retrieve the channels (showsubs.go)")
 			//filter by will be added
-			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{channel.Displayname, functions.DateConvertTrim(channel.Lastcheck, 10), functions.DateConvertTrim(database.GetLastDownload(config.Db_name, channel.Yt_channelid), 10), functions.DateConvertTrim(channel.Date_added, 10), database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)), strconv.Itoa(channel.Last_feed_count)}, channel.ID)
+
+			treewidgetItem := widgets.NewQTreeWidgetItem2([]string{channel.Displayname, functions.DateConvertTrim(channel.Lastcheck, 16), functions.DateConvertTrim(database.GetLastDownload(config.Db_name, channel.Yt_channelid), 16), functions.DateConvertTrim(channel.Date_added, 10), database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)), strconv.Itoa(channel.Last_feed_count)}, channel.ID)
 			treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(channel.Yt_channelid))
 			treeWidget.AddTopLevelItem(treewidgetItem)
 
@@ -104,6 +105,8 @@ func showSubs(status string) {
 		})
 	}
 	treeWidget.ResizeColumnToContents(0)
+	treeWidget.ResizeColumnToContents(1)
+	treeWidget.ResizeColumnToContents(2)
 	treeWidget.SetCurrentItem(treeWidget.TopLevelItem(indexSelected))
 
 	treeWidget.ScrollToItem(treeWidget.TopLevelItem(indexSelected), widgets.QAbstractItemView__PositionAtCenter)
