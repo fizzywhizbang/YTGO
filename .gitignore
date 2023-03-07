@@ -4,3 +4,12 @@ vendor
 darwin
 deploy
 fixfuckery.sh
+feedform.go.txt
+.DS_Store
+.gitattributes
+icons
+.DS_Store
+.DS_Store
+.vscode/launch.json
+go.mod
+go.sum
