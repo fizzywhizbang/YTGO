@@ -204,7 +204,7 @@ func ChannelSettings(ytchanid string) {
 		if channel.Yt_channelid != input.Text() {
 			action := widgets.QMessageBox_Question(nil, "Warning", "Are you sure you want to update "+channel.Yt_channelid+" to "+input.Text(), widgets.QMessageBox__Yes|widgets.QMessageBox__No, 0)
 			if action == widgets.QMessageBox__Yes {
-				result = database.ModChanSettings(config.Db_name, channel.Yt_channelid, input.Text(), input2.Text(), input3.Text(), input4.ToPlainText(), database.GetStatusIDI(config.Db_name, selector.CurrentText()))
+				result = database.ModChanSettings(config.Db_name, channel.Yt_channelid, input.Text(), input2.Text(), input3.Text(), functions.MysqlRealEscapeString(input4.ToPlainText()), database.GetStatusIDI(config.Db_name, selector.CurrentText()))
 				//we also need to refresh the view because the channel id changed
 				refreshFunc(Window, App)
 			}

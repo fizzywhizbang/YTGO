@@ -152,7 +152,7 @@ func addChannel(chanid string) {
 		channel.Yt_channelid = input.Text()
 		channel.Displayname = input2.Text()
 		channel.Dldir = input3.Text()
-		channel.Notes = input4.ToPlainText()
+		channel.Notes = functions.MysqlRealEscapeString(input4.ToPlainText())
 		channel.Archive = database.GetStatusIDI(config.Db_name, selector.CurrentText())
 		channel.Lastcheck = int(time.Now().Unix())
 		channel.Date_added = int(time.Now().Unix())
