@@ -13,3 +13,4 @@ icons
 .vscode/launch.json
 go.mod
 go.sum
+compile.sh
