@@ -56,14 +56,15 @@ func showTags() {
 	tableWidget.OnCellChanged(func(row, column int) {
 
 		// index := tableWidget.IndexFromItem(tableWidget.CurrentItem())
-		id := tableWidget.Item(row, 0).Text()
+
 		data := tableWidget.Item(row, column).Text()
-		if id == "" {
+		if row == count {
 			//new record
 			database.TagInsert(config.Db_name, data)
 			window.Close()
 			showTags()
 		} else {
+			id := tableWidget.Item(row, 0).Text()
 			//update status in database
 			database.TagUpdate(config.Db_name, id, data)
 			//reload view

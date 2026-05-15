@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/fizzywhizbang/YTGO/database"
@@ -52,9 +51,16 @@ func showStatus() {
 
 	tableWidget.SetColumnWidth(1, 300)
 	tableWidget.OnCellChanged(func(row, column int) {
-		fmt.Println(row)
+		id := ""
 		// index := tableWidget.IndexFromItem(tableWidget.CurrentItem())
-		id := tableWidget.Item(row, 0).Text()
+
+		if row == rowCounter {
+			// new record
+			id = ""
+		} else {
+			id = tableWidget.Item(row, 0).Text()
+		}
+
 		data := tableWidget.Item(row, column).Text()
 		if id == "" {
 			//new record
