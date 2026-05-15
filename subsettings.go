@@ -5,21 +5,19 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func ChannelSettings(ytchanid string) {
 
 	// Create main window
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Edit Channel")
 	window.SetMinimumSize2(800, 400)
 	FormSelected = "EditChannel"
 
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(event *qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
@@ -29,21 +27,21 @@ func ChannelSettings(ytchanid string) {
 	channel := database.GetChanInfo(config.Db_name, ytchanid)
 
 	// Create main widget and set the layout
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
 
 	//crate page for tab
 
 	//create form layout
-	mainFormLayout := widgets.NewQFormLayout(nil)
+	mainFormLayout := qt.NewQFormLayout(nil)
 
 	//create tabbed container
-	tabContainer := widgets.NewQTabWidget(nil)
+	tabContainer := qt.NewQTabWidget(nil)
 	tabContainer.SetMinimumWidth(790)
 
 	//details
 	//Date added
-	tableWidget := widgets.NewQTableWidget(nil)
+	tableWidget := qt.NewQTableWidget(nil)
 	tableWidget.SetColumnCount(2)
 	tableWidget.SetRowCount(6)
 	tableWidget.SetHorizontalHeaderLabels([]string{"Title", "Data"})
@@ -51,54 +49,54 @@ func ChannelSettings(ytchanid string) {
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
 	tableWidget.SetStyleSheet(tableColors)
 
-	tableWidget.SetItem(0, 0, widgets.NewQTableWidgetItem2("Date Added", 0))
-	tableWidget.SetItem(0, 1, widgets.NewQTableWidgetItem2(functions.DateConvert(channel.Date_added), 0))
+	tableWidget.SetItem(0, 0, qt.NewQTableWidgetItem2("Date Added"))
+	tableWidget.SetItem(0, 1, qt.NewQTableWidgetItem2(functions.DateConvert(channel.Date_added)))
 
-	tableWidget.SetItem(1, 0, widgets.NewQTableWidgetItem2("Last Download", 0))
-	tableWidget.SetItem(1, 1, widgets.NewQTableWidgetItem2(functions.DateConvert(channel.Lastpub), 0))
+	tableWidget.SetItem(1, 0, qt.NewQTableWidgetItem2("Last Download"))
+	tableWidget.SetItem(1, 1, qt.NewQTableWidgetItem2(functions.DateConvert(channel.Lastpub)))
 
-	tableWidget.SetItem(2, 0, widgets.NewQTableWidgetItem2("Last Download", 0))
-	tableWidget.SetItem(2, 1, widgets.NewQTableWidgetItem2(strconv.Itoa(channel.Lastpub), 0))
+	tableWidget.SetItem(2, 0, qt.NewQTableWidgetItem2("Last Download"))
+	tableWidget.SetItem(2, 1, qt.NewQTableWidgetItem2(strconv.Itoa(channel.Lastpub)))
 
-	tableWidget.SetItem(3, 0, widgets.NewQTableWidgetItem2("Last Check", 0))
-	tableWidget.SetItem(3, 1, widgets.NewQTableWidgetItem2(functions.DateConvert(channel.Lastcheck), 0))
+	tableWidget.SetItem(3, 0, qt.NewQTableWidgetItem2("Last Check"))
+	tableWidget.SetItem(3, 1, qt.NewQTableWidgetItem2(functions.DateConvert(channel.Lastcheck)))
 
-	tableWidget.SetItem(4, 0, widgets.NewQTableWidgetItem2("Directory", 0))
-	tableWidget.SetItem(4, 1, widgets.NewQTableWidgetItem2(channel.Dldir, 0))
+	tableWidget.SetItem(4, 0, qt.NewQTableWidgetItem2("Directory"))
+	tableWidget.SetItem(4, 1, qt.NewQTableWidgetItem2(channel.Dldir))
 
-	tableWidget.SetItem(5, 0, widgets.NewQTableWidgetItem2("Last Feed Count", 0))
-	tableWidget.SetItem(5, 1, widgets.NewQTableWidgetItem2(strconv.Itoa(channel.Last_feed_count), 0))
+	tableWidget.SetItem(5, 0, qt.NewQTableWidgetItem2("Last Feed Count"))
+	tableWidget.SetItem(5, 1, qt.NewQTableWidgetItem2(strconv.Itoa(channel.Last_feed_count)))
 
 	// detailsWidget.SetLayout(detailsLayout)
 	tableWidget.ResizeColumnToContents(0)
 	tableWidget.ResizeColumnToContents(1)
-	tabContainer.AddTab(tableWidget, "Details")
+	tabContainer.AddTab(tableWidget.QWidget, "Details")
 
 	//settings Tab
-	settingsWidget := widgets.NewQWidget(nil, 0)
-	layout := widgets.NewQFormLayout(nil)
-	layout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
+	settingsWidget := qt.NewQWidget(nil)
+	layout := qt.NewQFormLayout(nil)
+	layout.SetFieldGrowthPolicy(qt.QFormLayout__ExpandingFieldsGrow)
 	// Create a line edit and add it to the layout
-	input := widgets.NewQLineEdit(nil)
+	input := qt.NewQLineEdit(nil)
 	input.SetText(ytchanid)
 
-	layout.AddRow3("Channel URL: ", input)
+	layout.AddRow3("Channel URL: ", input.QWidget)
 
-	input2 := widgets.NewQLineEdit(nil)
+	input2 := qt.NewQLineEdit(nil)
 	input2.SetText(channel.Displayname)
-	layout.InsertRow3(1, "Channel Name: ", input2)
+	layout.InsertRow3(1, "Channel Name: ", input2.QWidget)
 
-	input3 := widgets.NewQLineEdit(nil)
+	input3 := qt.NewQLineEdit(nil)
 	input3.SetText(channel.Dldir)
-	layout.InsertRow3(2, "Directory: ", input3)
+	layout.InsertRow3(2, "Directory: ", input3.QWidget)
 
-	input4 := widgets.NewQTextEdit(nil)
+	input4 := qt.NewQTextEdit(nil)
 	input4.SetText(channel.Notes)
-	layout.InsertRow3(3, "Notes/Tags: ", input4)
+	layout.InsertRow3(3, "Notes/Tags: ", input4.QWidget)
 
 	//tags
 	tags := database.GetAllTags(config.Db_name, "tag")
-	tagSelector := widgets.NewQComboBox(nil)
+	tagSelector := qt.NewQComboBox(nil)
 	tagItems := []string{}
 	tagItems = append(tagItems, "Select to add to Notes/Tags box")
 	for tags.Next() {
@@ -109,9 +107,9 @@ func ChannelSettings(ytchanid string) {
 	}
 
 	tagSelector.AddItems(tagItems)
-	layout.InsertRow3(4, "Tag Selector: ", tagSelector)
+	layout.InsertRow3(4, "Tag Selector: ", tagSelector.QWidget)
 
-	tagSelector.ConnectCurrentTextChanged(func(text string) {
+	tagSelector.OnCurrentTextChanged(func(text string) {
 
 		if text != "Select to add to Notes/Tags box" {
 			//get current text in notes and append to it
@@ -121,7 +119,7 @@ func ChannelSettings(ytchanid string) {
 		}
 	})
 
-	selector := widgets.NewQComboBox(nil)
+	selector := qt.NewQComboBox(nil)
 	statuses := database.GetAllStatus(config.Db_name)
 	statusSlice := []string{}
 	for statuses.Next() {
@@ -135,47 +133,47 @@ func ChannelSettings(ytchanid string) {
 
 	selector.SetCurrentText(database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)))
 
-	layout.InsertRow3(5, "Status: ", selector)
+	layout.InsertRow3(5, "Status: ", selector.QWidget)
 
-	optionGroup := widgets.NewQHBoxLayout()
+	optionGroup := qt.NewQHBoxLayout(nil)
 	//save button
-	saveButton := widgets.NewQPushButton(nil)
+	saveButton := qt.NewQPushButton(nil)
 	saveButton.SetText("Save Changes")
-	optionGroup.AddWidget(saveButton, 0, 0)
+	optionGroup.AddWidget(saveButton.QWidget)
 	//cancel button
-	cancelButton := widgets.NewQPushButton(nil)
+	cancelButton := qt.NewQPushButton(nil)
 	cancelButton.SetText("Cancel")
-	optionGroup.AddWidget(cancelButton, 0, 0)
+	optionGroup.AddWidget(cancelButton.QWidget)
 	//
-	optionGroup2 := widgets.NewQHBoxLayout()
+	optionGroup2 := qt.NewQHBoxLayout(nil)
 	//Download new button
-	dlNew := widgets.NewQPushButton(nil)
+	dlNew := qt.NewQPushButton(nil)
 	dlNew.SetText("Download New")
-	optionGroup2.AddWidget(dlNew, 0, 0)
+	optionGroup2.AddWidget(dlNew.QWidget)
 	//update database button
-	updateDB := widgets.NewQPushButton(nil)
+	updateDB := qt.NewQPushButton(nil)
 	updateDB.SetText("Update Database (no dl)")
-	optionGroup2.AddWidget(updateDB, 0, 0)
+	optionGroup2.AddWidget(updateDB.QWidget)
 
 	//goto URL button
-	gotoURLButton := widgets.NewQPushButton(nil)
+	gotoURLButton := qt.NewQPushButton(nil)
 	gotoURLButton.SetText("Go To URL")
-	optionGroup2.AddWidget(gotoURLButton, 0, 0)
+	optionGroup2.AddWidget(gotoURLButton.QWidget)
 
 	//cancel action
-	cancelButton.ConnectClicked(func(checked bool) { window.Close() })
+	cancelButton.OnClicked(func() { window.Close() })
 	//goto url action
-	gotoURLButton.ConnectClicked(func(checked bool) { functions.Openbrowser(config.Defbrowser, channel.Yt_channelid) })
+	gotoURLButton.OnClicked(func() { functions.Openbrowser(config.Defbrowser, channel.Yt_channelid) })
 
-	layout.InsertRow6(6, optionGroup)
-	layout.InsertRow6(7, optionGroup2)
-	settingsWidget.SetLayout(layout)
+	layout.InsertRow6(6, optionGroup.QLayout)
+	layout.InsertRow6(7, optionGroup2.QLayout)
+	settingsWidget.SetLayout(layout.QLayout)
 	tabContainer.AddTab(settingsWidget, "Settings")
 
 	videoDL := contentListDL(channel.Yt_channelid)
-	tabContainer.AddTab(videoDL, "Downloaded Video")
+	tabContainer.AddTab(videoDL.QWidget, "Downloaded Video")
 
-	tabContainer.ConnectCurrentChanged(func(index int) {
+	tabContainer.OnCurrentChanged(func(index int) {
 		//index2 is downloaded videos
 		if index == 2 {
 			videoDL.Clear()                            //clear content
@@ -183,27 +181,27 @@ func ChannelSettings(ytchanid string) {
 		}
 
 	})
-	// tabContainer.AddTab(widgets.NewQLabel2("Downloaded Videos", nil, 0), "Downloaded Videos")
+	// tabContainer.AddTab(qt.NewQLabel2("Downloaded Videos", nil, 0), "Downloaded Videos")
 	// removing and opting for having a separate feed window
 	// rssFeed := contentList(channel.yt_channelid)
 	// tabContainer.AddTab(rssFeed, "RSS Feed")
 
-	updateDB.ConnectClicked(func(checked bool) {
+	updateDB.OnClicked(func() {
 		functions.UpdateChan(config.Db_name, config.FolderWatch, channel.Yt_channelid, false, true)
 		database.UpdateChecked(config.Db_name, channel.Yt_channelid)
 		// feedCheck(channel.yt_channelid)
 	})
-	dlNew.ConnectClicked(func(checked bool) {
+	dlNew.OnClicked(func() {
 		functions.UpdateChan(config.Db_name, config.FolderWatch, channel.Yt_channelid, true, true)
 		database.UpdateChecked(config.Db_name, channel.Yt_channelid)
 	})
-	saveButton.ConnectClicked(func(checked bool) {
+	saveButton.OnClicked(func() {
 		//fmt.Println(getStatusIDI(selector.CurrentText()))
 		//if channel id is changed prompt are you sure
 		result := false
 		if channel.Yt_channelid != input.Text() {
-			action := widgets.QMessageBox_Question(nil, "Warning", "Are you sure you want to update "+channel.Yt_channelid+" to "+input.Text(), widgets.QMessageBox__Yes|widgets.QMessageBox__No, 0)
-			if action == widgets.QMessageBox__Yes {
+			action := qt.QMessageBox_Question(nil, "Warning", "Are you sure you want to update "+channel.Yt_channelid+" to "+input.Text())
+			if action == qt.QMessageBox__Yes {
 				result = database.ModChanSettings(config.Db_name, channel.Yt_channelid, input.Text(), input2.Text(), input3.Text(), functions.MysqlRealEscapeString(input4.ToPlainText()), database.GetStatusIDI(config.Db_name, selector.CurrentText()))
 				//we also need to refresh the view because the channel id changed
 				refreshFunc(Window, App)
@@ -212,21 +210,21 @@ func ChannelSettings(ytchanid string) {
 			result = database.ModChanSettings(config.Db_name, channel.Yt_channelid, input.Text(), input2.Text(), input3.Text(), input4.ToPlainText(), database.GetStatusIDI(config.Db_name, selector.CurrentText()))
 		}
 		if result {
-			widgets.QMessageBox_Information(nil, "OK", "Update Complete", widgets.QMessageBox__Ok, widgets.QMessageBox__Cancel)
+			qt.QMessageBox_Information(nil, "OK", "Update Complete")
 		} else {
-			widgets.QMessageBox_Information(nil, "OK", "Failed to update", widgets.QMessageBox__Ok, widgets.QMessageBox__Cancel)
+			qt.QMessageBox_Information(nil, "OK", "Failed to update")
 		}
 
 	})
 
 	tabContainer.AddTab(downloadVideoForm(channel.Displayname, channel.Dldir, channel.Yt_channelid), "Download Video")
 
-	mainFormLayout.AddWidget(tabContainer)
+	mainFormLayout.AddWidget(tabContainer.QWidget)
 
 	// Set main widget as the central widget of the window
-	mainWidget.SetLayout(mainFormLayout)
+	mainWidget.SetLayout(mainFormLayout.QLayout)
 
-	// mainWidget.Layout().QLayoutItem.SetAlignment(core.Qt__AlignLeft)
+	// mainWidget.Layout().QLayoutItem.SetAlignment(qt.AlignLeft)
 	window.SetCentralWidget(mainWidget)
 
 	// Show the window

@@ -6,24 +6,22 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func showStatus() {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Edit Settings")
 	window.SetMinimumSize2(800, 300)
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
-	tableWidget := widgets.NewQTableWidget(mainWidget)
+	tableWidget := qt.NewQTableWidget(mainWidget)
 
 	statuses := database.GetAllStatus(config.Db_name)
 	tableWidget.SetColumnCount(2)
@@ -38,22 +36,22 @@ func showStatus() {
 		var status database.Category
 		err := statuses.Scan(&status.ID, &status.Name)
 		functions.CheckErr(err, "Unable to get statuses")
-		id := widgets.NewQTableWidgetItem2(strconv.Itoa(status.ID), 0)
-		name := widgets.NewQTableWidgetItem2(status.Name, 0)
+		id := qt.NewQTableWidgetItem2(strconv.Itoa(status.ID))
+		name := qt.NewQTableWidgetItem2(status.Name)
 		tableWidget.SetItem(rowCounter, 0, id)
 		tableWidget.SetItem(rowCounter, 1, name)
-		name.SetData(1, core.NewQVariant12(status.Name))
+		name.SetData(1, qt.NewQVariant11(status.Name))
 
-		id.SetData(0, core.NewQVariant12(strconv.Itoa(status.ID)))
-		id.SetFlags(core.Qt__NoItemFlags)
+		id.SetData(0, qt.NewQVariant11(strconv.Itoa(status.ID)))
+		id.SetFlags(qt.NoItemFlags)
 		rowCounter++
 	}
 
-	widgets.NewQTableWidgetItem2("", 0)
-	widgets.NewQTableWidgetItem2("", 0)
+	qt.NewQTableWidgetItem2("")
+	qt.NewQTableWidgetItem2("")
 
 	tableWidget.SetColumnWidth(1, 300)
-	tableWidget.ConnectCellChanged(func(row, column int) {
+	tableWidget.OnCellChanged(func(row, column int) {
 		fmt.Println(row)
 		// index := tableWidget.IndexFromItem(tableWidget.CurrentItem())
 		id := tableWidget.Item(row, 0).Text()
@@ -72,12 +70,12 @@ func showStatus() {
 			showStatus()
 		}
 
-		widgets.QMessageBox_Information(nil, "App Restart", "Settings saved.\nRestart application for new settings to be visible", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
-		// fmt.Println(index.Data(int(core.Qt__UserRole)).ToString())
+		qt.QMessageBox_Information(nil, "App Restart", "Settings saved.\nRestart application for new settings to be visible")
+		// fmt.Println(index.Data(int(qt.Qt__UserRole)).ToString())
 	})
 	tableWidget.SetSortingEnabled(true)
 
-	window.SetCentralWidget(tableWidget)
+	window.SetCentralWidget(tableWidget.QWidget)
 
 	// Show the window
 	window.Show()

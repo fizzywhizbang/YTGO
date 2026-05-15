@@ -4,58 +4,56 @@ import (
 	"fmt"
 
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func downloadVideoForm(channame string, dldir string, chanid string) *widgets.QWidget {
+func downloadVideoForm(channame string, dldir string, chanid string) *qt.QWidget {
 	//if channel id passed add to database otherwise just download
 
 	//create widget to be returned
-	layoutWidget := widgets.NewQWidget(nil, 0)
+	layoutWidget := qt.NewQWidget(nil)
 
-	layout := widgets.NewQFormLayout(nil)
-	layout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
+	layout := qt.NewQFormLayout(nil)
+	layout.SetFieldGrowthPolicy(qt.QFormLayout__ExpandingFieldsGrow)
 
 	//videourl https://www.youtube.com/watch?v=
-	yturl := widgets.NewQLineEdit(nil)
+	yturl := qt.NewQLineEdit(nil)
 	yturl.SetPlaceholderText("Only enter video id")
 	yturl.SetToolTip("Press enter after you insert the video ID to fetch the details")
-	layout.AddRow3("Vidoe ID: ", yturl)
+	layout.AddRow3("Vidoe ID: ", yturl.QWidget)
 
 	//channel name
-	chanName := widgets.NewQLineEdit(nil)
+	chanName := qt.NewQLineEdit(nil)
 	chanName.SetText(channame)
-	layout.AddRow3("Channel Name: ", chanName)
+	layout.AddRow3("Channel Name: ", chanName.QWidget)
 	//channel directory
-	chanDIR := widgets.NewQLineEdit(nil)
+	chanDIR := qt.NewQLineEdit(nil)
 	chanDIR.SetText(dldir)
-	layout.AddRow3("Directory: ", chanDIR)
+	layout.AddRow3("Directory: ", chanDIR.QWidget)
 	//download and cancel buttons
 
 	//video title
-	videoTitle := widgets.NewQLineEdit(nil)
-	layout.AddRow3("Video Title: ", videoTitle)
+	videoTitle := qt.NewQLineEdit(nil)
+	layout.AddRow3("Video Title: ", videoTitle.QWidget)
 	//video description
-	videoDesc := widgets.NewQTextEdit(nil)
+	videoDesc := qt.NewQTextEdit(nil)
 	videoDesc.SetReadOnly(true)
-	layout.AddRow3("Description: ", videoDesc)
+	layout.AddRow3("Description: ", videoDesc.QWidget)
 	//video date
-	videoDate := widgets.NewQLineEdit(nil)
-	layout.AddRow3("Date Published: ", videoDate)
+	videoDate := qt.NewQLineEdit(nil)
+	layout.AddRow3("Date Published: ", videoDate.QWidget)
 
-	startButton := widgets.NewQPushButton(nil)
+	startButton := qt.NewQPushButton(nil)
 	startButton.SetText("Start Download")
 
-	layout.AddRow3(" ", startButton)
+	layout.AddRow3(" ", startButton.QWidget)
 
-	msgbox := widgets.NewQLabel(nil, 0)
-	layout.AddRow3(" ", msgbox)
+	msgbox := qt.NewQLabel(nil)
+	layout.AddRow3(" ", msgbox.QWidget)
 	videoTitleText := ""
-	yturl.ConnectKeyReleaseEvent(func(event *gui.QKeyEvent) {
+	yturl.OnKeyReleaseEvent(func(super func(event *qt.QKeyEvent), event *qt.QKeyEvent) {
 		// 00H8gY69PKo
-		if int32(event.Key()) == int32(core.Qt__Key_Return) || int32(event.Key()) == int32(core.Qt__Key_Enter) {
+		if int32(event.Key()) == int32(qt.Key_Return) || int32(event.Key()) == int32(qt.Key_Enter) {
 			// if FormSelected == editchannel then only return video info
 			if FormSelected == "EditChannel" {
 				video := functions.GetVideoInfo(yturl.Text())
@@ -74,7 +72,7 @@ func downloadVideoForm(channame string, dldir string, chanid string) *widgets.QW
 			fmt.Println(FormSelected)
 		}
 	})
-	startButton.ConnectClicked(func(checked bool) {
+	startButton.OnClicked(func() {
 		if len(videoTitle.Text()) >= 1 && len(videoDate.Text()) >= 1 {
 			functions.MkCrawljob(config.Db_name, config.FolderWatch, chanid, videoTitle.Text(), yturl.Text(), videoDate.Text(), 1)
 		}
@@ -82,10 +80,10 @@ func downloadVideoForm(channame string, dldir string, chanid string) *widgets.QW
 		msgbox.SetText(videoTitleText + " added to queue")
 	})
 
-	instructionsLabel := widgets.NewQLabel2("After inserting the Video ID press enter and I'll fetch the video details", nil, 0)
-	instructionsLabel.SetFont(gui.NewQFont2("Times", 12, 1, true))
-	layout.AddRow5(instructionsLabel)
-	layoutWidget.SetLayout(layout)
+	instructionsLabel := qt.NewQLabel3("After inserting the Video ID press enter and I'll fetch the video details")
+	instructionsLabel.SetFont(qt.NewQFont6("Times", 12))
+	layout.AddRowWithWidget(instructionsLabel.QWidget)
+	layoutWidget.SetLayout(layout.QLayout)
 
 	return layoutWidget
 }

@@ -5,24 +5,22 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func showSearches() {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Searches")
 	window.SetMinimumSize2(800, 300)
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
-	tableWidget := widgets.NewQTableWidget(mainWidget)
+	tableWidget := qt.NewQTableWidget(mainWidget)
 
 	searches := database.GetAllSearches(config.Db_name)
 	tableWidget.SetColumnCount(4)
@@ -37,32 +35,32 @@ func showSearches() {
 		var search database.Search
 		err := searches.Scan(&search.ID, &search.Name, &search.Link)
 		functions.CheckErr(err, "Could not retrieve searches")
-		id := widgets.NewQTableWidgetItem2(strconv.Itoa(search.ID), 0)
-		name := widgets.NewQTableWidgetItem2(search.Name, 0)
-		link := widgets.NewQTableWidgetItem2(search.Link, 0)
+		id := qt.NewQTableWidgetItem2(strconv.Itoa(search.ID))
+		name := qt.NewQTableWidgetItem2(search.Name)
+		link := qt.NewQTableWidgetItem2(search.Link)
 		tableWidget.SetItem(rowCounter, 0, id)
 		tableWidget.SetItem(rowCounter, 1, name)
 		tableWidget.SetItem(rowCounter, 2, link)
-		gobutton := widgets.NewQTableWidgetItem2("GO", 0)
-		gobutton.SetFlags(core.Qt__ItemIsEnabled) //disable this cell as it's there to follow the link
+		gobutton := qt.NewQTableWidgetItem2("GO")
+		gobutton.SetFlags(qt.ItemIsEnabled) //disable this cell as it's there to follow the link
 		tableWidget.SetItem(rowCounter, 3, gobutton)
 
-		name.SetData(1, core.NewQVariant12(search.Name))
+		name.SetData(1, qt.NewQVariant11(search.Name))
 
-		id.SetData(0, core.NewQVariant12(strconv.Itoa(search.ID)))
-		id.SetFlags(core.Qt__NoItemFlags)
+		id.SetData(0, qt.NewQVariant11(strconv.Itoa(search.ID)))
+		id.SetFlags(qt.NoItemFlags)
 		rowCounter++
 	}
 
-	widgets.NewQTableWidgetItem2("", 0)
-	widgets.NewQTableWidgetItem2("", 0)
+	qt.NewQTableWidgetItem2("")
+	qt.NewQTableWidgetItem2("")
 
 	tableWidget.ResizeColumnToContents(0)
 	tableWidget.ResizeColumnToContents(1)
 	tableWidget.SetColumnWidth(2, 400)
 	tableWidget.ResizeColumnToContents(3)
 
-	tableWidget.ConnectCellDoubleClicked(func(row, column int) {
+	tableWidget.OnCellDoubleClicked(func(row, column int) {
 
 		if column == 3 {
 			url := tableWidget.Item(row, 2).Text()
@@ -71,7 +69,7 @@ func showSearches() {
 		}
 	})
 
-	tableWidget.ConnectCellChanged(func(row, column int) {
+	tableWidget.OnCellChanged(func(row, column int) {
 
 		// index := tableWidget.IndexFromItem(tableWidget.CurrentItem())
 		id := tableWidget.Item(row, 0).Text()
@@ -102,7 +100,7 @@ func showSearches() {
 	})
 	tableWidget.SetSortingEnabled(true)
 
-	window.SetCentralWidget(tableWidget)
+	window.SetCentralWidget(tableWidget.QWidget)
 
 	// Show the window
 	window.Show()

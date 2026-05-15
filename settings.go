@@ -3,75 +3,73 @@ package main
 import (
 	"strconv"
 
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func loadSettings() {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Edit Settings")
 	window.SetMinimumSize2(800, 300)
 
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
 	// Create main widget and set the layout
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
 	config := ConfigParser()
 	//create form layout
-	layout := widgets.NewQFormLayout(nil)
-	layout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
+	layout := qt.NewQFormLayout(nil)
+	layout.SetFieldGrowthPolicy(qt.QFormLayout__ExpandingFieldsGrow)
 
-	dbname := widgets.NewQLineEdit(nil)
+	dbname := qt.NewQLineEdit(nil)
 	dbname.SetText(config.Db_name)
-	layout.InsertRow3(2, "Database Name: ", dbname)
+	layout.InsertRow3(2, "Database Name: ", dbname.QWidget)
 
-	baseDL := widgets.NewQLineEdit(nil)
+	baseDL := qt.NewQLineEdit(nil)
 	baseDL.SetText(config.BaseDL)
-	layout.InsertRow3(5, "Base Download Directory: ", baseDL)
+	layout.InsertRow3(5, "Base Download Directory: ", baseDL.QWidget)
 
-	defbrowser := widgets.NewQLineEdit(nil)
+	defbrowser := qt.NewQLineEdit(nil)
 	defbrowser.SetText(config.Defbrowser)
-	layout.InsertRow3(6, "Default Browser: ", defbrowser)
+	layout.InsertRow3(6, "Default Browser: ", defbrowser.QWidget)
 
-	folderwatch := widgets.NewQLineEdit(nil)
+	folderwatch := qt.NewQLineEdit(nil)
 	folderwatch.SetText(config.FolderWatch)
-	layout.InsertRow3(7, "FolderWatch Loc: ", folderwatch)
+	layout.InsertRow3(7, "FolderWatch Loc: ", folderwatch.QWidget)
 
-	monitor := widgets.NewQComboBox(nil)
+	monitor := qt.NewQComboBox(nil)
 	items := []string{"true", "false"}
 	monitor.AddItems(items)
 
 	monitor.SetCurrentText(strconv.FormatBool(config.Monitor))
-	layout.InsertRow3(8, "Enable Monitor:", monitor)
+	layout.InsertRow3(8, "Enable Monitor:", monitor.QWidget)
 
-	buttonGroup := widgets.NewQHBoxLayout()
-	save := widgets.NewQPushButton2("Save", nil)
-	buttonGroup.AddWidget(save, 0, 0)
-	cancel := widgets.NewQPushButton2("Cancel", nil)
-	buttonGroup.AddWidget(cancel, 0, 0)
-	layout.AddItem(buttonGroup)
+	buttonGroup := qt.NewQHBoxLayout(nil)
+	save := qt.NewQPushButton3("Save")
+	buttonGroup.AddWidget(save.QWidget)
+	cancel := qt.NewQPushButton3("Cancel")
+	buttonGroup.AddWidget(cancel.QWidget)
+	layout.AddItem(buttonGroup.QLayoutItem)
 
-	cancel.ConnectClicked(func(checked bool) {
+	cancel.OnClicked(func() {
 		window.Close()
 	})
 
-	save.ConnectClicked(func(checked bool) {
+	save.OnClicked(func() {
 		//if write config returns true then it saved the json file and the user will be notified to
 		//restart the program for the new settings to take effect
 		//meow
 		if writeConfig(dbname.Text(), baseDL.Text(), defbrowser.Text(), folderwatch.Text(), monitor.CurrentText()) {
-			widgets.QMessageBox_Information(nil, "OK", "Please restart the program for new settings to take effect", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "OK", "Please restart the program for new settings to take effect")
 		}
 	})
 
-	mainWidget.SetLayout(layout)
-	// mainWidget.Layout().QLayoutItem.SetAlignment(core.Qt__AlignLeft)
+	mainWidget.SetLayout(layout.QLayout)
+	// mainWidget.Layout().QLayoutItem.SetAlignment(qt.Qt__AlignLeft)
 	window.SetCentralWidget(mainWidget)
 
 	// Show the window

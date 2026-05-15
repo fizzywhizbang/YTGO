@@ -6,27 +6,25 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func showSubsSearch(searchstring string, searchType string, status string) {
 	GlobalStatus = status
 
-	verticalLayout := widgets.NewQVBoxLayout()
+	verticalLayout := qt.NewQVBoxLayout(nil)
 
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 
 	//this is where it differs
 	channels := database.ChannelSearch(config.Db_name, GlobalStatus, searchstring, searchType)
-	treeWidget := widgets.NewQTreeWidget(nil)
+	treeWidget := qt.NewQTreeWidget(nil)
 	treeWidget.SetColumnCount(6)
-	treeWidget.SetObjectName("treewidget")
+	treeWidget.SetObjectName(*qt.NewQAnyStringView3("treewidget"))
 	treeWidget.Header().SetStretchLastSection(false)
 	treeWidget.Header().SetSectionsClickable(true)
 	treeWidget.SetSortingEnabled(true)
-	treeWidget.SortByColumn(sectionClicked, core.Qt__SortOrder(0))
+	treeWidget.SortByColumn(sectionClicked, qt.SortOrder(0))
 	treeWidget.SetAlternatingRowColors(true)
 	tableColors := "alternate-background-color: #88DD88; background-color:#FFFFFF; color:#000000; font-size: 12px;"
 	treeWidget.SetStyleSheet(tableColors)
@@ -44,40 +42,40 @@ func showSubsSearch(searchstring string, searchType string, status string) {
 		}
 
 		//filter by will be added
-		treewidgetItem := widgets.NewQTreeWidgetItem2([]string{channel.Displayname, functions.DateConvertTrim(channel.Lastcheck, 10), functions.DateConvertTrim(database.GetLastDownload(config.Db_name, channel.Yt_channelid), 10), functions.DateConvertTrim(channel.Date_added, 10), database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)), strconv.Itoa(channel.Last_feed_count)}, channel.ID)
-		treewidgetItem.SetData(0, int(core.Qt__UserRole), core.NewQVariant12(channel.Yt_channelid))
+		treewidgetItem := qt.NewQTreeWidgetItem2([]string{channel.Displayname, functions.DateConvertTrim(channel.Lastcheck, 10), functions.DateConvertTrim(database.GetLastDownload(config.Db_name, channel.Yt_channelid), 10), functions.DateConvertTrim(channel.Date_added, 10), database.GetStatus(config.Db_name, strconv.Itoa(channel.Archive)), strconv.Itoa(channel.Last_feed_count)})
+		treewidgetItem.SetData(0, int(qt.UserRole), qt.NewQVariant11(channel.Yt_channelid))
 		treeWidget.AddTopLevelItem(treewidgetItem)
 		counter++
 	}
 
-	// treeWidget.ConnectKeyReleaseEvent(keyPressEvent)
-	treeWidget.ConnectKeyReleaseEvent(func(event *gui.QKeyEvent) {
+	// treeWidget.OnKeyReleaseEvent(keyPressEvent)
+	treeWidget.OnKeyReleaseEvent(func(super func(event *qt.QKeyEvent), event *qt.QKeyEvent) {
 		//get selected sub and then pass to the master key event in libs
-		index := treeWidget.IndexFromItem(treeWidget.CurrentItem(), 0)
+		index := treeWidget.IndexFromItem(treeWidget.CurrentItem())
 		indexSelected = index.Row()
-		data := index.Data(int(core.Qt__UserRole)).ToString()
+		data := index.DataWithRole(int(qt.UserRole)).ToString()
 		GlobalChannelID = data
 		chaninfo := database.GetChanInfo(config.Db_name, data)
-		Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
+		Window.StatusBar().ShowMessage("Subscription Selected: " + chaninfo.Displayname + " " + data)
 
 		// keyPressEvent(event, w)
 	})
 
-	treeWidget.ConnectContextMenuEvent(func(event *gui.QContextMenuEvent) {
+	treeWidget.OnContextMenuEvent(func(super func(event *qt.QContextMenuEvent), event *qt.QContextMenuEvent) {
 		contextMenu(GlobalChannelID, event)
 	})
-	treeWidget.ConnectClicked(func(index *core.QModelIndex) {
+	treeWidget.OnClicked(func(index *qt.QModelIndex) {
 		indexSelected = index.Row()
-		data := index.Data(int(core.Qt__UserRole)).ToString()
+		data := index.DataWithRole(int(qt.UserRole)).ToString()
 		//set global channel id for subsequent actions
 		GlobalChannelID = data
 		chaninfo := database.GetChanInfo(config.Db_name, data)
-		Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
-		// widgets.QMessageBox_Information(nil, "OK", data, widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+		Window.StatusBar().ShowMessage("Subscription Selected: " + chaninfo.Displayname + " " + data)
+		// qt.QMessageBox_Information(nil, "OK", data, qt.QMessageBox__Ok, qt.QMessageBox__Ok)
 	})
-	treeWidget.ConnectDoubleClicked(func(index *core.QModelIndex) {
+	treeWidget.OnDoubleClicked(func(index *qt.QModelIndex) {
 		indexSelected = index.Row()
-		data := index.Data(int(core.Qt__UserRole)).ToString()
+		data := index.DataWithRole(int(qt.UserRole)).ToString()
 		//set global channel id for subsequent actions
 		GlobalChannelID = data
 		//double click means open the settings for this channel
@@ -85,26 +83,26 @@ func showSubsSearch(searchstring string, searchType string, status string) {
 			ChannelSettings(GlobalChannelID)
 		}
 		chaninfo := database.GetChanInfo(config.Db_name, data)
-		Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" "+data, 0)
-		// widgets.QMessageBox_Information(nil, "OK", "Open Subscription Settings for "+data, widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+		Window.StatusBar().ShowMessage("Subscription Selected: " + chaninfo.Displayname + " " + data)
+		// qt.QMessageBox_Information(nil, "OK", "Open Subscription Settings for "+data, qt.QMessageBox__Ok, qt.QMessageBox__Ok)
 	})
-	treeWidget.Header().ConnectSectionClicked(func(logicalIndex int) {
+	treeWidget.Header().OnSectionClicked(func(logicalIndex int) {
 		sectionClicked = logicalIndex
 
 	})
 	treeWidget.ResizeColumnToContents(0)
 	treeWidget.SetCurrentItem(treeWidget.TopLevelItem(indexSelected))
 
-	treeWidget.ScrollToItem(treeWidget.TopLevelItem(indexSelected), widgets.QAbstractItemView__PositionAtCenter)
+	treeWidget.ScrollToItem(treeWidget.TopLevelItem(indexSelected))
 	//end loop
-	verticalLayout.AddWidget(treeWidget, 0, 0)
+	verticalLayout.AddWidget(treeWidget.QWidget)
 	subCount = counter
-	toolbar := toolbarInit(widgets.NewQToolBar2(nil))
+	toolbar := toolbarInit(qt.NewQToolBar3())
 
 	toolbar.AddSeparator()
 
-	verticalLayout.SetMenuBar(toolbar)
-	mainWidget.SetLayout(verticalLayout)
+	verticalLayout.SetMenuBar(toolbar.QWidget)
+	mainWidget.SetLayout(verticalLayout.QLayout)
 
 	// // Set main widget as the central widget of the window
 	Window.SetCentralWidget(mainWidget)

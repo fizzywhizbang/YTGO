@@ -12,25 +12,23 @@ import (
 	"github.com/aquilax/truncate"
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func feedWindow(chanid string) {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	chaninfo := database.GetChanInfo(config.Db_name, chanid)
 	title := chaninfo.Displayname + " Channel Feed"
 	window.SetWindowTitle(title)
 	window.SetMinimumSize2(800, 400)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(event *qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
 
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
 
 	youtubefeed := YtFeedURL + chanid
@@ -56,30 +54,30 @@ func feedWindow(chanid string) {
 
 	*/
 
-	formlayout := widgets.NewQFormLayout(nil)
-	group := widgets.NewQHBoxLayout()
-	header1 := widgets.NewQLabel2("VideoID", nil, 0)
+	formlayout := qt.NewQFormLayout(nil)
+	group := qt.NewQHBoxLayout(nil)
+	header1 := qt.NewQLabel3("VideoID")
 	header1.SetFixedWidth(100)
-	group.AddWidget(header1, 0, 0)
-	header2 := widgets.NewQLabel2("Title", nil, 0)
+	group.AddWidget(header1.QWidget)
+	header2 := qt.NewQLabel3("Title")
 	header2.SetFixedWidth(400)
-	group.AddWidget(header2, 0, 0)
-	header3 := widgets.NewQLabel2("Date", nil, 0)
+	group.AddWidget(header2.QWidget)
+	header3 := qt.NewQLabel3("Date")
 	header3.SetFixedWidth(100)
-	group.AddWidget(header3, 0, 0)
-	header4 := widgets.NewQLabel2("Status", nil, 0)
+	group.AddWidget(header3.QWidget)
+	header4 := qt.NewQLabel3("Status")
 	header4.SetFixedWidth(100)
-	group.AddWidget(header4, 0, 0)
-	header5 := widgets.NewQLabel2("Actions", nil, 0)
-	group.AddWidget(header5, 0, 0)
+	group.AddWidget(header4.QWidget)
+	header5 := qt.NewQLabel3("Actions")
+	group.AddWidget(header5.QWidget)
 
-	formlayout.AddRow6(group)
+	formlayout.AddRowWithLayout(group.QLayout)
 	database.UpdateChecked(config.Db_name, chanid)
 	database.UpdateFeedCT(config.Db_name, chanid, len(feed.Entries))
 	if len(feed.Entries) >= 1 {
 		//db fields yt_videoid, title, description, publisher, publish_date(unix), watched(if added to download then 1 else 0)
 		for i := 0; i < len(feed.Entries); i++ {
-			group := widgets.NewQHBoxLayout()
+			group := qt.NewQHBoxLayout(nil)
 
 			date, _ := time.Parse(time.RFC3339, feed.Entries[i].Published)
 			videxists := false
@@ -88,19 +86,19 @@ func feedWindow(chanid string) {
 			}
 			//fields VideoID, Title, Date, Downloaded, Action (view,mark,etc)
 
-			videoIDLabel := widgets.NewQLabel2(feed.Entries[i].VideoId, nil, 0)
+			videoIDLabel := qt.NewQLabel3(feed.Entries[i].VideoId)
 			videoIDLabel.SetFixedWidth(100)
-			group.AddWidget(videoIDLabel, 0, 0)
+			group.AddWidget(videoIDLabel.QWidget)
 
-			titleLabel := widgets.NewQLabel2(truncate.Truncate(feed.Entries[i].Title, 70, "...", truncate.PositionEnd), nil, 0)
+			titleLabel := qt.NewQLabel3(truncate.Truncate(feed.Entries[i].Title, 70, "...", truncate.PositionEnd))
 			titleLabel.SetFixedWidth(400)
-			group.AddWidget(titleLabel, 0, 0)
+			group.AddWidget(titleLabel.QWidget)
 
-			dateLabel := widgets.NewQLabel2(date.Format("2006-01-02"), nil, 0)
+			dateLabel := qt.NewQLabel3(date.Format("2006-01-02"))
 			dateLabel.SetFixedWidth(100)
-			group.AddWidget(dateLabel, 0, 0)
+			group.AddWidget(dateLabel.QWidget)
 
-			actionCombo := widgets.NewQComboBox(nil)
+			actionCombo := qt.NewQComboBox(nil)
 			list := []string{"Actions", "Download " + strconv.Itoa(i) + "", "Skip " + strconv.Itoa(i) + "", "View " + strconv.Itoa(i) + "", "Find Similar " + strconv.Itoa(i) + ""}
 			actionCombo.AddItems(list)
 
@@ -118,12 +116,12 @@ func feedWindow(chanid string) {
 
 			}
 
-			downloadedLabel := widgets.NewQLabel2(status, nil, 0)
+			downloadedLabel := qt.NewQLabel3(status)
 			downloadedLabel.SetFixedWidth(100)
-			group.AddWidget(downloadedLabel, 0, 0)
+			group.AddWidget(downloadedLabel.QWidget)
 
-			group.AddWidget(actionCombo, 0, 0)
-			actionCombo.ConnectCurrentTextChanged(func(text string) {
+			group.AddWidget(actionCombo.QWidget)
+			actionCombo.OnCurrentTextChanged(func(text string) {
 				action := strings.Split(text, " ")
 
 				if action[0] == "Download" {
@@ -131,7 +129,7 @@ func feedWindow(chanid string) {
 					fmt.Println("Download", feed.Entries[row].VideoId)
 					date, _ := time.Parse(time.RFC3339, feed.Entries[row].Published)
 					functions.MkCrawljob(config.Db_name, config.FolderWatch, GlobalChannelID, feed.Entries[row].Title, feed.Entries[row].VideoId, date.Format("2006-01-02"), 1)
-					widgets.QMessageBox_Information(nil, "OK", "Added to Queue "+feed.Entries[row].Title, widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+					qt.QMessageBox_Information(nil, "OK", "Added to Queue "+feed.Entries[row].Title)
 				}
 				if action[0] == "Skip" {
 					row, _ := strconv.Atoi(action[1])
@@ -139,7 +137,7 @@ func feedWindow(chanid string) {
 					date, _ := time.Parse(time.RFC3339, feed.Entries[row].Published)
 					unixdate := functions.ConvertYMDtoUnix(date.Format("2006-01-02"))
 					database.InsertVideo(config.Db_name, feed.Entries[row].VideoId, feed.Entries[row].Title, feed.Entries[row].Title, GlobalChannelID, unixdate, "2")
-					widgets.QMessageBox_Information(nil, "OK", feed.Entries[row].Title+" Recorded as skipped", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+					qt.QMessageBox_Information(nil, "OK", feed.Entries[row].Title+" Recorded as skipped")
 				}
 				if action[0] == "View" {
 					row, _ := strconv.Atoi(action[1])
@@ -154,11 +152,11 @@ func feedWindow(chanid string) {
 				}
 			})
 
-			formlayout.AddRow6(group)
+			formlayout.AddRowWithLayout(group.QLayout)
 		}
 	}
 
-	mainWidget.SetLayout(formlayout)
+	mainWidget.SetLayout(formlayout.QLayout)
 	window.SetCentralWidget(mainWidget)
 	window.Show()
 }

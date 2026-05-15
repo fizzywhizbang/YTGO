@@ -6,55 +6,53 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func addChannel(chanid string) {
 	config := ConfigParser()
 	// Create main window
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Add Channel")
 	window.SetMinimumSize2(800, 400)
 
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(*qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
 	// Create main widget and set the layout
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
 
 	//create form layout
-	layout := widgets.NewQFormLayout(nil)
+	layout := qt.NewQFormLayout(nil)
 
-	layout.SetFieldGrowthPolicy(widgets.QFormLayout__ExpandingFieldsGrow)
+	layout.SetFieldGrowthPolicy(qt.QFormLayout__ExpandingFieldsGrow)
 
 	// Create a line edit and add it to the layout
-	input := widgets.NewQLineEdit(nil)
+	input := qt.NewQLineEdit(nil)
 	input.SetPlaceholderText("UCxxxx")
 	input.SetText(chanid)
 	input.SetToolTip("Press enter to lookup channel information")
-	layout.AddRow3("Channel URL: ", input)
+	layout.AddRow3("Channel URL: ", input.QWidget)
 
-	input2 := widgets.NewQLineEdit(nil)
-	layout.InsertRow3(1, "Channel Name: ", input2)
+	input2 := qt.NewQLineEdit(nil)
+	layout.InsertRow3(1, "Channel Name: ", input2.QWidget)
 
-	label := widgets.NewQLabel(nil, 0)
+	label := qt.NewQLabel(nil)
 	label.SetText(config.BaseDL)
-	layout.InsertRow3(2, "Base Directory: ", label)
+	layout.InsertRow3(2, "Base Directory: ", label.QWidget)
 
-	input3 := widgets.NewQLineEdit(nil)
-	layout.InsertRow3(3, "Directory: ", input3)
+	input3 := qt.NewQLineEdit(nil)
+	layout.InsertRow3(3, "Directory: ", input3.QWidget)
 
-	input4 := widgets.NewQTextEdit(nil)
-	layout.InsertRow3(4, "Notes/Tags: ", input4)
+	input4 := qt.NewQTextEdit(nil)
+	layout.InsertRow3(4, "Notes/Tags: ", input4.QWidget)
 
-	input.ConnectKeyReleaseEvent(func(event *gui.QKeyEvent) {
-		if int32(event.Key()) == int32(core.Qt__Key_Return) || int32(event.Key()) == int32(core.Qt__Key_Enter) {
+	input.OnKeyReleaseEvent(func(super func(*qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Return) || int32(event.Key()) == int32(qt.Key_Enter) {
 			chaninfo := functions.GetChanInfoFromYT(input.Text())
 			input2.SetText(chaninfo.Displayname)
 			dir := chaninfo.Displayname
@@ -62,9 +60,9 @@ func addChannel(chanid string) {
 			input4.SetText(chaninfo.Notes)
 			//see if channel exists
 			if database.GetChanExist(config.Db_name, input.Text()) == 1 {
-				action := widgets.QMessageBox_Question(nil, "Channel Exists", "This channel exists do you want to view the settings?", widgets.QMessageBox__Open|widgets.QMessageBox__Cancel, 0)
+				action := qt.QMessageBox_Question2(nil, "Channel Exists", "This channel exists do you want to view the settings?", qt.QMessageBox__Open|qt.QMessageBox__Cancel, qt.QMessageBox__Cancel)
 
-				if action == widgets.QMessageBox__Open {
+				if action == int(qt.QMessageBox__Open) {
 					ChannelSettings(input.Text())
 					window.Close()
 				}
@@ -74,7 +72,7 @@ func addChannel(chanid string) {
 
 	//tags
 	tags := database.GetAllTags(config.Db_name, "tag")
-	tagSelector := widgets.NewQComboBox(nil)
+	tagSelector := qt.NewQComboBox(nil)
 	tagSelector.SetToolTip("Under System->Edit Tags you can add more tags")
 	tagItems := []string{}
 	tagItems = append(tagItems, "Select to add to Notes/Tags box")
@@ -86,9 +84,9 @@ func addChannel(chanid string) {
 	}
 
 	tagSelector.AddItems(tagItems)
-	layout.InsertRow3(5, "Tag Selector: ", tagSelector)
+	layout.InsertRow3(5, "Tag Selector: ", tagSelector.QWidget)
 
-	tagSelector.ConnectCurrentTextChanged(func(text string) {
+	tagSelector.OnCurrentTextChanged(func(text string) {
 
 		if text != "Select to add to Notes/Tags box" {
 			//get current text in notes and append to it
@@ -96,13 +94,13 @@ func addChannel(chanid string) {
 			currentNotes += "\n#" + text
 			input4.SetText(currentNotes)
 			//since I have selected the tag selector let's keep focus on it for faster tag selection
-			tagSelector.SetFocus2()
+			tagSelector.SetFocus()
 		}
 	})
 
 	//selector needs to be generated from the database
 	statuses := database.GetAllStatus(config.Db_name)
-	selector := widgets.NewQComboBox(nil)
+	selector := qt.NewQComboBox(nil)
 	items := []string{}
 	for statuses.Next() {
 		var status database.Category
@@ -112,40 +110,40 @@ func addChannel(chanid string) {
 	}
 
 	selector.AddItems(items)
-	layout.InsertRow3(6, "Status: ", selector)
+	layout.InsertRow3(6, "Status: ", selector.QWidget)
 
-	optionGroup := widgets.NewQHBoxLayout()
+	optionGroup := qt.NewQHBoxLayout(nil)
 	//mark all downloaded
-	markAll := widgets.NewQCheckBox(nil)
+	markAll := qt.NewQCheckBox(nil)
 	markAll.SetText("Mark All Downloaded")
-	optionGroup.AddWidget(markAll, 0, 0)
+	optionGroup.AddWidget(markAll.QWidget)
 	//Download all Videos
-	downloadAll := widgets.NewQCheckBox(nil)
+	downloadAll := qt.NewQCheckBox(nil)
 	downloadAll.SetText("Download All")
-	optionGroup.AddWidget(downloadAll, 0, 0)
+	optionGroup.AddWidget(downloadAll.QWidget)
 	//View Settings
-	viewSettings := widgets.NewQCheckBox(nil)
+	viewSettings := qt.NewQCheckBox(nil)
 	viewSettings.SetText("View Settings")
-	optionGroup.AddWidget(viewSettings, 0, 0)
+	optionGroup.AddWidget(viewSettings.QWidget)
 	//add button
-	addButton := widgets.NewQPushButton(nil)
+	addButton := qt.NewQPushButton(nil)
 	addButton.SetText("Add")
-	optionGroup.AddWidget(addButton, 0, 0)
+	optionGroup.AddWidget(addButton.QWidget)
 	//cancel button
-	cancelButton := widgets.NewQPushButton(nil)
+	cancelButton := qt.NewQPushButton(nil)
 	cancelButton.SetText("Cancel")
-	optionGroup.AddWidget(cancelButton, 0, 0)
+	optionGroup.AddWidget(cancelButton.QWidget)
 
-	cancelButton.ConnectClicked(func(checked bool) { window.Close() })
+	cancelButton.OnClicked(func() { window.Close() })
 
 	//progress bar
-	progressBar := widgets.NewQProgressBar(nil)
+	progressBar := qt.NewQProgressBar(nil)
 	progressBar.SetMinimum(0)
 	progressBar.SetMaximum(100)
 	// progressBar.SetValue(progressBar.Maximum() / 2)
-	layout.InsertRow5(8, progressBar)
+	layout.InsertRow5(8, progressBar.QWidget)
 
-	addButton.ConnectClicked(func(checked bool) {
+	addButton.OnClicked(func() {
 		//add channel
 		var channel database.Channel
 		//displayname, dldir, yt_channelid, lastcheck, archive, notes, date_added
@@ -181,22 +179,21 @@ func addChannel(chanid string) {
 			}
 			progressBar.SetValue(progressBar.Maximum())
 			time.Sleep(time.Second)
-			widgets.QMessageBox_Information(nil, "OK", "Added "+input2.Text()+" with "+strconv.Itoa(ct)+" videos", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "OK", "Added "+input2.Text()+" with "+strconv.Itoa(ct)+" videos")
 		} else {
-			widgets.QMessageBox_Warning(nil, "Warning", "Something went wrong and I can't handle it", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Warning(nil, "Warning", "Something went wrong and I can't handle it")
 		}
 
 	})
 
-	layout.InsertRow6(7, optionGroup)
+	layout.InsertRow6(7, optionGroup.QLayout)
 
-	instructionsLabel := widgets.NewQLabel2("After inserting the Channel ID press enter and I'll fetch the channel details", nil, 0)
-	instructionsLabel.SetFont(gui.NewQFont2("Times", 12, 1, true))
-	layout.AddRow5(instructionsLabel)
-
+	instructionsLabel := qt.NewQLabel3("After inserting the Channel ID press enter and I'll fetch the channel details")
+	instructionsLabel.SetFont(qt.NewQFont6("Times", 12))
+	layout.AddRowWithWidget(instructionsLabel.QWidget)
 	// Set main widget as the central widget of the window
-	mainWidget.SetLayout(layout)
-	// mainWidget.Layout().QLayoutItem.SetAlignment(core.Qt__AlignLeft)
+	mainWidget.SetLayout(layout.QLayout)
+	// mainWidget.Layout().QLayoutItem.SetAlignment(qt.Qt__AlignLeft)
 	window.SetCentralWidget(mainWidget)
 
 	// Show the window

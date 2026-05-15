@@ -5,14 +5,12 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
+func toolbarInit(toolbar *qt.QToolBar) *qt.QToolBar {
 
-	statusSelector := widgets.NewQComboBox(nil)
+	statusSelector := qt.NewQComboBox(nil)
 	statusitems := []string{"Main"}
 	statuses := database.GetAllStatus(config.Db_name)
 	//create vertical layout
@@ -24,12 +22,12 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 		statusitems = append(statusitems, status.Name)
 	}
 	statusSelector.AddItems(statusitems)
-	toolbar.AddWidget(statusSelector)
+	toolbar.AddWidget(statusSelector.QWidget)
 	if GlobalStatus != "" {
 		//set default selector item
 		statusSelector.SetCurrentText(database.GetStatus(config.Db_name, GlobalStatus))
 	}
-	statusSelector.ConnectCurrentTextChanged(func(text string) {
+	statusSelector.OnCurrentTextChanged(func(text string) {
 
 		if text == "Main" {
 			//reset index selected
@@ -53,23 +51,23 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 
 	})
 
-	toolbar.SetToolButtonStyle(core.Qt__ToolButtonTextOnly)
+	toolbar.SetToolButtonStyle(qt.ToolButtonTextOnly)
 	toolbar.SetMovable(true)
 	//search
-	selector := widgets.NewQComboBox(nil)
+	selector := qt.NewQComboBox(nil)
 	items := []string{"Select Search Type", "Tags", "Notes", "Channel Name", "Channel Directory", "Channel ID", "Channel with Video Title"}
 	selector.AddItems(items)
 	if GlobalSearchType != "" {
 		selector.SetCurrentText(GlobalSearchType)
 	}
 
-	toolbar.AddWidget(selector)
-	searchTags := widgets.NewQLineEdit(nil)
+	toolbar.AddWidget(selector.QWidget)
+	searchTags := qt.NewQLineEdit(nil)
 	searchTags.SetMaximumWidth(400)
 	if len(globalSearchTags) > 1 {
 		searchTags.SetText(globalSearchTags)
 	}
-	selector.ConnectCurrentTextChanged(func(text string) {
+	selector.OnCurrentTextChanged(func(text string) {
 		switch text {
 		case "Select Search Type":
 			globalSearchTags = ""
@@ -87,22 +85,22 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 		}
 		//
 	})
-	toolbar.AddWidget(searchTags)
-	searchTags.ConnectKeyReleaseEvent(func(event *gui.QKeyEvent) {
-		if int32(event.Key()) == int32(core.Qt__Key_Return) || int32(event.Key()) == int32(core.Qt__Key_Enter) {
+	toolbar.AddWidget(searchTags.QWidget)
+	searchTags.OnKeyReleaseEvent(func(super func(event *qt.QKeyEvent), event *qt.QKeyEvent) {
+		if int32(event.Key()) == int32(qt.Key_Return) || int32(event.Key()) == int32(qt.Key_Enter) {
 			if selector.CurrentText() != "Select Search Type" {
 				if searchTags.Text() != "" {
 					if selector.CurrentText() == "Channel ID" {
 						channel := database.GetChanInfo(config.Db_name, searchTags.Text())
 						//search multiple criteria
 						if channel.Displayname == "" {
-							action := widgets.QMessageBox_Warning(nil, "Search not found", "There is no channel with ID"+searchTags.Text()+" found\nWould you like to add it?", widgets.QMessageBox__Ok, widgets.QMessageBox__Cancel)
-							if action == widgets.QMessageBox__Ok {
+							action := qt.QMessageBox_Warning(nil, "Search not found", "There is no channel with ID"+searchTags.Text()+" found\nWould you like to add it?")
+							if action == qt.QMessageBox__Ok {
 								addChannel(searchTags.Text())
 							}
 						} else {
-							action := widgets.QMessageBox_Question(nil, "Channel Exists", "This channel exists do you want to view the settings?", widgets.QMessageBox__Open|widgets.QMessageBox__Cancel, 0)
-							if action == widgets.QMessageBox__Open {
+							action := qt.QMessageBox_Question(nil, "Channel Exists", "This channel exists do you want to view the settings?")
+							if action == qt.QMessageBox__Open {
 								ChannelSettings(searchTags.Text())
 							}
 						}
@@ -121,14 +119,14 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 		}
 	})
 
-	tagButton := widgets.NewQPushButton2("tags", nil)
-	tagButton.ConnectClicked(func(checked bool) {
+	tagButton := qt.NewQPushButton3("tags")
+	tagButton.OnClicked(func() {
 		//open tag window for searching
 		showTagSearch()
 	})
-	toolbar.AddWidget(tagButton)
+	toolbar.AddWidget(tagButton.QWidget)
 
-	countLabel := widgets.NewQLabel(toolbar, 0)
+	countLabel := qt.NewQLabel(toolbar.QWidget)
 	if subCount > 0 || len(GlobalSearchType) > 1 {
 		countLabel.SetText(strconv.Itoa(subCount))
 	} else {
@@ -139,6 +137,6 @@ func toolbarInit(toolbar *widgets.QToolBar) *widgets.QToolBar {
 
 	}
 
-	toolbar.AddWidget(countLabel)
+	toolbar.AddWidget(countLabel.QWidget)
 	return toolbar
 }

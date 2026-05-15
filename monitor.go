@@ -5,15 +5,15 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
-func monitorWindow() *widgets.QTextBrowser {
+func monitorWindow() *qt.QTextBrowser {
 
 	results := database.GetLatestVideos(config.Db_name)
 	var video database.Video
 
-	textarea := widgets.NewQTextBrowser(nil)
+	textarea := qt.NewQTextBrowser(nil)
 	textarea.SetOpenExternalLinks(true)
 	message := ""
 	message += "<div class=\"font-weight: bold; font-size:16px; color:green\">#############################################################<br>"

@@ -8,15 +8,14 @@ import (
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
 	"github.com/fizzywhizbang/YTGO/monitor"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 var ConfigDir = ""
 var ConfigFile = "ytgo.json"
 var config YTGO
 
-//global variables to pass through different forms
+// global variables to pass through different forms
 var GlobalStatus = ""
 var orderby = "displayname"
 var SelectedChannel = ""
@@ -28,8 +27,8 @@ var sectionClicked = 0
 var GlobalSearchType = ""
 var subCount = 0
 
-var App *widgets.QApplication
-var Window *widgets.QMainWindow
+var App *qt.QApplication
+var Window *qt.QMainWindow
 
 func main() {
 	//initial startup to check the config and if it doesn't exist create the config file and database for our program
@@ -46,112 +45,112 @@ func main() {
 		go monitor.MonitorStart(cfile)
 	}
 	// Create application
-	App = widgets.NewQApplication(len(os.Args), os.Args)
-	Window = widgets.NewQMainWindow(nil, 0)
+	App = qt.NewQApplication(os.Args)
+	Window = qt.NewQMainWindow(nil)
 	Window.SetWindowTitle("YTGO (Youtube Channel Monitor)")
 	Window.SetMinimumSize2(900, 600)
 	statuses := database.GetAllStatus(config.Db_name)
 	menu := Window.MenuBar()
 
-	selectMenu := menu.AddMenu2("&Select View")
-	subOpts := menu.AddMenu2("&Channel Opts")
-	moveMenu := menu.AddMenu2("&Move Sub")
-	systemSettings := menu.AddMenu2("&System")
+	selectMenu := menu.AddMenuWithTitle("&Select View")
+	subOpts := menu.AddMenuWithTitle("&Channel Opts")
+	moveMenu := menu.AddMenuWithTitle("&Move Sub")
+	systemSettings := menu.AddMenuWithTitle("&System")
 
-	subStatus := systemSettings.AddAction("Categories")
-	subStatus.ConnectTriggered(func(checked bool) {
+	subStatus := systemSettings.AddActionWithText("Categories")
+	subStatus.OnTriggered(func() {
 		showStatus()
 	})
 
-	tags := systemSettings.AddAction("Edit Tags")
-	tags.ConnectTriggered(func(checked bool) {
+	tags := systemSettings.AddActionWithText("Edit Tags")
+	tags.OnTriggered(func() {
 		showTags()
 	})
 
-	searches := systemSettings.AddAction("Favorite Searches")
-	searches.SetShortcut(gui.NewQKeySequence2("Ctrl+e", gui.QKeySequence__NativeText))
-	searches.ConnectTriggered(func(checked bool) {
+	searches := systemSettings.AddActionWithText("Favorite Searches")
+	searches.SetShortcut(qt.NewQKeySequence2("Ctrl+e"))
+	searches.OnTriggered(func() {
 		showSearches()
 	})
 
-	ss := systemSettings.AddAction("System Settings")
-	ss.ConnectTriggered(func(checked bool) {
+	ss := systemSettings.AddActionWithText("System Settings")
+	ss.OnTriggered(func() {
 		GlobalStatus = ""
 		loadSettings()
 	})
 
-	binClean := systemSettings.AddAction("Clean Folderwatch")
-	binClean.ConnectTriggered(func(checked bool) {
+	binClean := systemSettings.AddActionWithText("Clean Folderwatch")
+	binClean.OnTriggered(func() {
 		if functions.Cleanfwatch(config.FolderWatch) {
-			widgets.QMessageBox_Information(nil, "OK", "FolderWatch DIR Cleaned ", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "OK", "FolderWatch DIR Cleaned ")
 		} else {
-			widgets.QMessageBox_Information(nil, "OK", "Error cleaning FolderWatch DIR ", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "OK", "Error cleaning FolderWatch DIR ")
 		}
 	})
 
-	addChan := subOpts.AddAction("Add Channel")
-	addChan.SetShortcuts2(gui.QKeySequence__New)
-	addChan.ConnectTriggered(func(checked bool) {
+	addChan := subOpts.AddActionWithText("Add Channel")
+	addChan.SetShortcutsWithShortcuts(qt.QKeySequence__New)
+	addChan.OnTriggered(func() {
 		addChannel("")
 	})
 
-	updateChanName := subOpts.AddAction("Update Channel Name")
-	updateChanName.SetShortcut(gui.NewQKeySequence2("Meta+U", gui.QKeySequence__NativeText))
-	// updateChanName.ConnectTriggered(func(checked bool) {
+	updateChanName := subOpts.AddActionWithText("Update Channel Name")
+	updateChanName.SetShortcut(qt.NewQKeySequence2("Meta+U"))
+	// updateChanName.OnTriggered(func() {
 	// })
 
-	vs := subOpts.AddAction("View Settings")
-	vs.SetShortcuts2(gui.QKeySequence__Open)
-	vs.ConnectTriggered(func(checked bool) {
+	vs := subOpts.AddActionWithText("View Settings")
+	vs.SetShortcutsWithShortcuts(qt.QKeySequence__Open)
+	vs.OnTriggered(func() {
 		if GlobalChannelID != "" {
 			ChannelSettings(GlobalChannelID)
 		}
 	})
 
-	sf := subOpts.AddAction("Show Feed")
-	sf.SetShortcuts2(gui.QKeySequence__Find)
-	sf.ConnectTriggered(func(checked bool) {
+	sf := subOpts.AddActionWithText("Show Feed")
+	sf.SetShortcutsWithShortcuts(qt.QKeySequence__Find)
+	sf.OnTriggered(func() {
 		if GlobalChannelID != "" {
 			feedWindow(GlobalChannelID)
 		}
 	})
-	gu := subOpts.AddAction("GoTo URL")
-	gu.SetShortcuts2(gui.QKeySequence__Bold)
-	gu.ConnectTriggered(func(checked bool) {
+	gu := subOpts.AddActionWithText("GoTo URL")
+	gu.SetShortcutsWithShortcuts(qt.QKeySequence__Bold)
+	gu.OnTriggered(func() {
 		if GlobalChannelID != "" {
 			fmt.Println(config.Defbrowser)
 			functions.Openbrowser(GlobalChannelID, config.Defbrowser)
 		}
 	})
 
-	dlu := subOpts.AddAction("Download New Vids")
-	dlu.SetShortcuts2(gui.QKeySequence__Save)
-	dlu.ConnectTriggered(func(checked bool) {
+	dlu := subOpts.AddActionWithText("Download New Vids")
+	dlu.SetShortcutsWithShortcuts(qt.QKeySequence__Save)
+	dlu.OnTriggered(func() {
 		//check if sub window is open
 		count := functions.UpdateChan(config.Db_name, config.FolderWatch, GlobalChannelID, true, true)
 		chaninfo := database.GetChanInfo(config.Db_name, GlobalChannelID)
-		Window.StatusBar().ShowMessage("Subscription Selected: "+chaninfo.Displayname+" Added: "+strconv.Itoa(count), 0)
+		Window.StatusBar().ShowMessage("Subscription Selected: " + chaninfo.Displayname + " Added: " + strconv.Itoa(count))
 	})
 
-	ud := subOpts.AddAction("Update Database")
-	ud.SetShortcuts2(gui.QKeySequence__Underline)
-	ud.ConnectTriggered(func(checked bool) {
+	ud := subOpts.AddActionWithText("Update Database")
+	ud.SetShortcutsWithShortcuts(qt.QKeySequence__Underline)
+	ud.OnTriggered(func() {
 		chaninfo := database.GetChanInfo(config.Db_name, GlobalChannelID)
-		Window.StatusBar().ShowMessage("Updating: "+chaninfo.Displayname+" "+GlobalChannelID, 0)
+		Window.StatusBar().ShowMessage("Updating: " + chaninfo.Displayname + " " + GlobalChannelID)
 		functions.UpdateChan(config.Db_name, config.FolderWatch, GlobalChannelID, false, true)
 	})
-	delChan := subOpts.AddAction("Delete Channel")
-	delChan.SetShortcut(gui.NewQKeySequence2("Meta+D", gui.QKeySequence__NativeText))
+	delChan := subOpts.AddActionWithText("Delete Channel")
+	delChan.SetShortcut(qt.NewQKeySequence2("Meta+D"))
 
-	main := selectMenu.AddAction("Main")
-	main.SetShortcut(gui.NewQKeySequence2("Ctrl+M", gui.QKeySequence__NativeText))
-	main.ConnectTriggered(func(checked bool) {
+	main := selectMenu.AddActionWithText("Main")
+	main.SetShortcut(qt.NewQKeySequence2("Ctrl+M"))
+	main.OnTriggered(func() {
 		GlobalStatus = ""
 		createHomeWindow()
 	})
-	refresh := selectMenu.AddAction("Refresh View")
-	refresh.SetShortcuts2(gui.QKeySequence__Refresh)
-	refresh.ConnectTriggered(func(checked bool) {
+	refresh := selectMenu.AddActionWithText("Refresh View")
+	refresh.SetShortcutsWithShortcuts(qt.QKeySequence__Refresh)
+	refresh.OnTriggered(func() {
 		refreshFunc(Window, App)
 	})
 	// status menu
@@ -160,21 +159,21 @@ func main() {
 		err := statuses.Scan(&status.ID, &status.Name)
 		functions.CheckErr(err, "Unable to retrieve statuses (main.go)")
 
-		a := selectMenu.AddAction(status.Name)
+		a := selectMenu.AddActionWithText(status.Name)
 		modifier := "CTRL+" + strconv.Itoa(status.ID)
-		a.SetShortcut(gui.NewQKeySequence2(modifier, gui.QKeySequence__NativeText))
+		a.SetShortcut(qt.NewQKeySequence2(modifier))
 
-		b := moveMenu.AddAction("Move to " + status.Name)
+		b := moveMenu.AddActionWithText("Move to " + status.Name)
 		modifier2 := "META+" + strconv.Itoa(status.ID)
-		b.SetShortcut(gui.NewQKeySequence2(modifier2, gui.QKeySequence__NativeText))
+		b.SetShortcut(qt.NewQKeySequence2(modifier2))
 	}
 
 	createHomeWindow()
 
-	App.Exec()
+	qt.QApplication_Exec()
 }
 
-func refreshFunc(window *widgets.QMainWindow, app *widgets.QApplication) {
+func refreshFunc(window *qt.QMainWindow, app *qt.QApplication) {
 	if GlobalStatus == "" && globalSearchTags == "" {
 
 		createHomeWindow()
@@ -188,23 +187,23 @@ func refreshFunc(window *widgets.QMainWindow, app *widgets.QApplication) {
 	}
 }
 func createHomeWindow() {
-	verticalLayout := widgets.NewQVBoxLayout()
+	verticalLayout := qt.NewQVBoxLayout(nil)
 
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 
-	toolbar := toolbarInit(widgets.NewQToolBar2(nil))
+	toolbar := toolbarInit(qt.NewQToolBar2("toolbar"))
 
 	//set menubar
-	verticalLayout.SetMenuBar(toolbar)
+	verticalLayout.SetMenuBar(toolbar.QWidget)
 
 	//add latest to vertical layout
 
 	info := monitorWindow()
-	verticalLayout.AddWidget(info, 0, 0)
+	verticalLayout.AddWidget(info.QWidget)
 
-	mainWidget.SetLayout(verticalLayout)
+	mainWidget.SetLayout(verticalLayout.QLayout)
 	statusBar := Window.StatusBar()
-	statusBar.SetObjectName("Status Bar")
+	statusBar.SetObjectName(*qt.NewQAnyStringView3("Status Bar"))
 
 	// // Set main widget as the central widget of the window
 	Window.SetCentralWidget(mainWidget)

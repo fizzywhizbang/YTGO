@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -14,7 +14,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/dyatlov/go-opengraph/opengraph"
 	"github.com/fizzywhizbang/YTGO/database"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 var Found = false
@@ -148,7 +148,7 @@ func GetChanInfoFromYT(chanid string) database.Channel {
 	}
 	defer resp.Body.Close()
 
-	html, err := ioutil.ReadAll(resp.Body)
+	html, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -173,7 +173,7 @@ func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	if err != nil {
 		panic(err)
 	}
-	byteValue, err := ioutil.ReadAll(resp.Body)
+	byteValue, err := io.ReadAll(resp.Body)
 	if err != nil {
 		panic(err)
 	}
@@ -209,9 +209,9 @@ func UpdateChan(dbname, fwatch, chanid string, dl bool, msg bool) int {
 	}
 	if msg {
 		if dl {
-			widgets.QMessageBox_Information(nil, "Videos Added", strconv.Itoa(x)+" Videos added to the queue", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "Videos Added", strconv.Itoa(x)+" Videos added to the queue")
 		} else {
-			widgets.QMessageBox_Information(nil, "Videos Added", strconv.Itoa(x)+" Videos added to the database", widgets.QMessageBox__Ok, widgets.QMessageBox__Ok)
+			qt.QMessageBox_Information(nil, "Videos Added", strconv.Itoa(x)+" Videos added to the database")
 		}
 	}
 
