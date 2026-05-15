@@ -18,8 +18,8 @@ since I have a server at home I decided to make it more portable and have it use
 
 ### Dependencies
 
-* Go 1.17, QT5.3
-* therecipe/qt https://github.com/therecipe/qt (follow instructions)
+* Go 1.26, QT6.9+  
+* mappu/miqt https://"github.com/mappu/miqt/qt6" (follow instructions)
 * and of course go mod tidy to get dependencies 
 * JDownloader2 (Why reinvent the wheel??) This will write .crawljobs for JD so add the folderwatch location to the config file
 * gocron https://github.com/go-co-op/gocron
@@ -28,10 +28,9 @@ since I have a server at home I decided to make it more portable and have it use
 ### Installing
 
 * go mod tidy
-* go mod vendor
   then
-* therecipe/qt https://github.com/therecipe/qt (follow instructions)
-* typically "qtdeploy build"
+* mappu/miqt https://"github.com/mappu/miqt/qt6" (follow instructions)  
+* go build -ldflags '-s -w'  
   
 ### Instructions for use
 * start the program :)
@@ -44,7 +43,7 @@ This project is licensed under the GPL-3.0 License - see the LICENSE file for de
 
 Inspiration, code snippets, etc.
 * [ytcc](https://github.com/woefe/ytcc)
-* [therecipe/qt] (https://github.com/therecipe/qt)
+* [mappu/miqt] (https://github.com/mappu/miqt)
 
 ## Todo
 * monitor package integration (testing)
