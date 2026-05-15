@@ -5,33 +5,31 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func showTagSearch() {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Tag Search")
 	// window.SetMinimumWidth(200)
 	window.SetMaximumSize2(250, 200)
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
 	searchTags := []string{}
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(e *qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
 
-	scrollArea := widgets.NewQScrollArea(window)
-	scrollArea.SetHorizontalScrollBarPolicy(core.Qt__ScrollBarAlwaysOff)
-	scrollArea.SetVerticalScrollBarPolicy(core.Qt__ScrollBarAlwaysOn)
+	scrollArea := qt.NewQScrollArea(window.QWidget)
+	scrollArea.SetHorizontalScrollBarPolicy(qt.ScrollBarAlwaysOff)
+	scrollArea.SetVerticalScrollBarPolicy(qt.ScrollBarAlwaysOn)
 	scrollArea.SetWidgetResizable(true)
 	scrollArea.SetWidget(mainWidget)
 	//create form layout
-	form := widgets.NewQFormLayout(nil)
+	form := qt.NewQFormLayout(nil)
 
 	tags := database.GetAllTags(config.Db_name, "tag")
 
@@ -44,15 +42,16 @@ func showTagSearch() {
 			functions.CheckErr(err, "unable to retrieve tags")
 			//create form items
 
-			checkbox := widgets.NewQCheckBox2(tag.Name, nil)
+			checkbox := qt.NewQCheckBox3(tag.Name)
 			if GlobalSearchType == "Tags" && contains(tag.Name) {
 				checkbox.SetChecked(true)
 				//add to array because it was there before
 				searchTags = append(searchTags, "#"+tag.Name)
 			}
 
-			form.InsertRow5(rowCounter, checkbox)
-			checkbox.ConnectClicked(func(checked bool) {
+			form.InsertRow5(rowCounter, checkbox.QWidget)
+			checkbox.OnClicked(func() {
+				checked := checkbox.IsChecked()
 				if checked {
 					//true
 					searchTags = append(searchTags, "#"+checkbox.Text())
@@ -75,13 +74,13 @@ func showTagSearch() {
 
 	}
 
-	mainWidget.SetLayout(form)
+	mainWidget.SetLayout(form.QLayout)
 
-	scroll_layout := widgets.NewQVBoxLayout2(nil)
-	scroll_layout.AddWidget(scrollArea, 0, 0)
+	scroll_layout := qt.NewQVBoxLayout2()
+	scroll_layout.AddWidget(scrollArea.QWidget)
 	scroll_layout.SetContentsMargins(0, 0, 0, 0)
-	containerWidget := widgets.NewQWidget(nil, 0)
-	containerWidget.SetLayout(scroll_layout)
+	containerWidget := qt.NewQWidget(nil)
+	containerWidget.SetLayout(scroll_layout.QLayout)
 
 	window.SetCentralWidget(containerWidget)
 

@@ -5,24 +5,22 @@ import (
 
 	"github.com/fizzywhizbang/YTGO/database"
 	"github.com/fizzywhizbang/YTGO/functions"
-	"github.com/therecipe/qt/core"
-	"github.com/therecipe/qt/gui"
-	"github.com/therecipe/qt/widgets"
+	qt "github.com/mappu/miqt/qt6"
 )
 
 func showTags() {
-	window := widgets.NewQMainWindow(nil, 0)
+	window := qt.NewQMainWindow(nil)
 	window.SetWindowTitle("Edit Settings")
 	window.SetMinimumSize2(800, 300)
-	mainWidget := widgets.NewQWidget(nil, 0)
+	mainWidget := qt.NewQWidget(nil)
 	mainWidget.SetContentsMargins(0, 2, 0, 0)
-	window.ConnectKeyPressEvent(func(e *gui.QKeyEvent) {
-		if int32(e.Key()) == int32(core.Qt__Key_Escape) {
+	window.OnKeyPressEvent(func(super func(e *qt.QKeyEvent), e *qt.QKeyEvent) {
+		if int32(e.Key()) == int32(qt.Key_Escape) {
 			//close window
 			window.Close()
 		}
 	})
-	tableWidget := widgets.NewQTableWidget(mainWidget)
+	tableWidget := qt.NewQTableWidget(mainWidget)
 
 	tags := database.GetAllTags(config.Db_name, "id")
 	tableWidget.SetColumnCount(2)
@@ -39,23 +37,23 @@ func showTags() {
 			var tag database.Tags
 			err := tags.Scan(&tag.ID, &tag.Name)
 			functions.CheckErr(err, "error getting tags")
-			id := widgets.NewQTableWidgetItem2(strconv.Itoa(tag.ID), 0)
-			name := widgets.NewQTableWidgetItem2(tag.Name, 0)
+			id := qt.NewQTableWidgetItem2(strconv.Itoa(tag.ID))
+			name := qt.NewQTableWidgetItem2(tag.Name)
 			tableWidget.SetItem(rowCounter, 0, id)
 			tableWidget.SetItem(rowCounter, 1, name)
-			name.SetData(1, core.NewQVariant12(tag.Name))
+			name.SetData(1, qt.NewQVariant11(tag.Name))
 
-			id.SetData(0, core.NewQVariant12(strconv.Itoa(tag.ID)))
-			id.SetFlags(core.Qt__NoItemFlags)
+			id.SetData(0, qt.NewQVariant11(strconv.Itoa(tag.ID)))
+			id.SetFlags(qt.NoItemFlags)
 			rowCounter++
 		}
 	}
 
-	widgets.NewQTableWidgetItem2("", 0)
-	widgets.NewQTableWidgetItem2("", 0)
+	qt.NewQTableWidgetItem2("")
+	qt.NewQTableWidgetItem2("")
 
 	tableWidget.SetColumnWidth(1, 300)
-	tableWidget.ConnectCellChanged(func(row, column int) {
+	tableWidget.OnCellChanged(func(row, column int) {
 
 		// index := tableWidget.IndexFromItem(tableWidget.CurrentItem())
 		id := tableWidget.Item(row, 0).Text()
@@ -75,7 +73,7 @@ func showTags() {
 	})
 	tableWidget.SetSortingEnabled(true)
 
-	window.SetCentralWidget(tableWidget)
+	window.SetCentralWidget(tableWidget.QWidget)
 
 	// Show the window
 	window.Show()
