@@ -46,5 +46,4 @@ Inspiration, code snippets, etc.
 * [mappu/miqt](https://github.com/mappu/miqt)
 
 ## Todo
-* monitor package integration (testing)
 * screen shots and instructions
