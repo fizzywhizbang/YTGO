@@ -29,7 +29,7 @@ since I have a server at home I decided to make it more portable and have it use
 
 * go mod tidy
   then
-* go get https://github.com/mappu/miqt/qt6 
+* go get github.com/mappu/miqt/qt6 
 * go build -ldflags '-s -w'  
   
 ### Instructions for use
