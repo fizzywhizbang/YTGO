@@ -43,7 +43,7 @@ This project is licensed under the GPL-3.0 License - see the LICENSE file for de
 
 Inspiration, code snippets, etc.
 * [ytcc](https://github.com/woefe/ytcc)
-* [mappu/miqt] (https://github.com/mappu/miqt)
+* [mappu/miqt](https://github.com/mappu/miqt)
 
 ## Todo
 * monitor package integration (testing)
